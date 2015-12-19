@@ -40,8 +40,6 @@ function game_load()
 
 	screenShake = 0
 	shakeIntensity = 0
-
-	table.insert(objects["shield"], shield:new(love.math.random(8, 48 * 8), 26 *  8))
 end
 
 function game_update(dt)
@@ -191,7 +189,7 @@ end
 
 function nextLevel(next)
 	currentLevel = next
-	difficultyMod = 1 + (currentLevel / 48)
+	difficultyMod = 1 + (currentLevel / 10) - 0.1
 	updateBGMPitch(1 * difficultyMod)
 	wavefade = 1
 end
@@ -316,11 +314,12 @@ end
 function gameSpawnShield()
 	if objects["player"][1] then
 		if objects["player"][1].shield or #objects["shield"] > 0 then
+			shieldTimer = 0
 			return
 		end
 	end
 
-	if love.math.random(100) < 30 then
+	if love.math.random(100) < 10 then
 		table.insert(objects["shield"], shield:new(love.math.random(8, 48 * 8), 26 *  8))
 	end
 	shieldTimer = 0

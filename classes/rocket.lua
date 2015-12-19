@@ -50,6 +50,11 @@ function rocket:update(dt)
 	if self.life > self.lifeTime then
 		self.remove = true
 	end
+
+	if self.remove then
+		table.insert(objects["rocket"], particle:new(self.x + self.r, self.y + self.r, -100))
+		table.insert(objects["rocket"], particle:new(self.x + self.r * 2, self.y + self.r, 100))
+	end
 end
 
 function rocket:draw()

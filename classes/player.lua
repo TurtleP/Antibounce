@@ -157,9 +157,8 @@ function player:leftCollide(name, data)
 	end
 
 	if name == "spike" then
-		if self.shield then
-			return false
-		end
+		self.speedx = -self.speedx
+		return false
 	end
 end
 	
@@ -170,9 +169,8 @@ function player:rightCollide(name, data)
 	end
 
 	if name == "spike" then
-		if self.shield then
-			return false
-		end
+		self.speedx = -self.speedx
+		return false
 	end
 end
 	

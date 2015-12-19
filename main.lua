@@ -28,6 +28,7 @@ function loadScripts()
 	require (path .. 'tile')
 	require (path .. 'rocket')
 	require (path .. 'shield')
+	require (path .. 'particle')
 
 	path = "libraries/"
 
