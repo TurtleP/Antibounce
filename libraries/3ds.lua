@@ -8,6 +8,17 @@ controls["pause"] = "start"
 
 local screens = {"top", "bottom"}
 
+love.deleteSave = function()
+	os.remove("smdc:/3ds/Antibounce/save.txt")
+	highscore = 0
+
+	if not saveDataDeleted then
+		saveDataDeleted = love.graphics.newImage("graphics/savedatanotice.png")
+	end
+
+	newNotice(saveDataDeleted, 4)
+end
+
 love.saveData = function(isLoaded)
 	local saveFile = io.open("smdc:/3ds/Antibounce/save.txt")
 	if not isLoaded then
