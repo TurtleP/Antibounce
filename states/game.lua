@@ -3,33 +3,68 @@ function game_load()
 
 	score = 0
 	gameover = false
+	paused = false
 
 	colortimer = 0
-	currentBackground = {0, love.math.random(100, 216), 43}
-	toBackground = {0, love.math.random(100, 216), 43}
+	currentBackground = {0, love.math.random(140, 216), 43}
+	toBackground = {0, love.math.random(140, 216), 43}
 
-	cointimer = love.math.random(2, 4)
 	gravity = 1
 
 	gravityTimer = love.math.random(10, 16)
 
 	gravityNotice = 0
-	gameoverfade = 0
+	gameoverfade = 1
+
+	currentLevel = 0
+	difficultyMod = 1 + (currentLevel / 100)
+
+	spikeTimer = 0
+	spikeRate = 5
+
+	coinTimer = 0
+	coinRate = 4
+
+	rocketRate = 7
+	rocketTimer = 0
+
+	shieldRate = 8
+	shieldTimer = 0
 
 	gameSetup()
+	
+	gravityNotify = false
+	gameBegin = false
+	
+	nextLevel(currentLevel + 1)
+
+	screenShake = 0
+	shakeIntensity = 0
+
+	table.insert(objects["shield"], shield:new(love.math.random(8, 48 * 8), 26 *  8))
 end
 
 function game_update(dt)
+	if shakeIntensity > 0 and not paused then
+		shakeIntensity = shakeIntensity - 20 * dt
+	end
+
+	dt = dt * difficultyMod
+
+	if paused then
+		return
+	end
+
 	for k, v in ipairs(squares) do
 		v:update(dt)
 	end
 
 	if colortimer > 3 then
 		currentBackground = toBackground
-		toBackground = {0, love.math.random(100, 216), 43}
+		toBackground = {0, love.math.random(140, 216), 43}
 		colortimer = 0
 	else
-		colortimer = colortimer + 2*dt
+		colortimer = colortimer + 2 * dt
 	end
 
 	if gameover then
@@ -39,20 +74,6 @@ function game_update(dt)
 			gameover_load()
 		end
 		return
-	end
-
-	if gravityTimer > 0 then
-		gravityTimer = gravityTimer - dt
-	else
-		gravity = gravity * -1
-		objects["player"][1]:flipGravity(gravity)
-		gravityTimer = love.math.random(10, 16)
-	end
-
-	if gravityTimer < 2 then
-		gravityNotice = gravityNotice + 8 * dt
-	else
-		gravityNotice = 0
 	end
 
 	physicsupdate(dt)
@@ -68,54 +89,241 @@ function game_update(dt)
 			end
 		end
 	end
-
-	if cointimer > 0 then
-		cointimer = cointimer - dt
-	else
-		if #objects["coin"] < 4 then
-			local min, max = 20, 28
-			if gravity == -1 then
-				min, max = 2, 10
-			end
-			table.insert(objects["coin"], newCoin(love.math.random(2 * 8, 48 * 8), love.math.random(min * 8, max * 8)))
-			cointimer = love.math.random(6)
-		end
-
-		if love.math.random(1, 7) == 1 then
-			gameSpawnSpike()
+	
+	if not gameBegin then
+		if gameoverfade > 0 then
+			gameoverfade = math.max(gameoverfade - 0.6 * dt, 0)
+		else
+			objects["player"][1]:setMoving(true)
+			gameBegin = true
 		end
 	end
+
+	if wavefade > 0 then
+		wavefade = math.max(wavefade - dt * 0.6, 0)
+	end
+
+	gameUpdateSpawns(dt)
 end
 
 function game_draw()
-	love.graphics.setBackgroundColor(colorfade(colortimer, 3, currentBackground, toBackground))
+	love.graphics.setBackgroundColor(unpack(colorfade(colortimer, 3, currentBackground, toBackground)))
 
 	for k, v in ipairs(squares) do
 		v:draw()
 	end
 
-	for k, v in pairs(objects) do
-		for j, w in pairs(v) do
-			if w.draw then
-				w:draw()
+	if shakeIntensity > 0 then
+		love.graphics.translate( (love.math.random() * 2 - 1) * shakeIntensity, (love.math.random() * 2 - 1) * shakeIntensity ) 
+	end
+	
+	for k, v in pairs(objects["spike"]) do
+		v:draw()
+	end
+	
+	for k, v in pairs(objects["tile"]) do
+		v:draw()
+	end
+
+	for k, v in pairs(objects["rocket"]) do
+		v:draw()
+	end
+	
+	for k, v in pairs(objects["shield"]) do
+		v:draw()
+	end
+
+	for k, v in pairs(objects["coin"]) do
+		v:draw()
+	end
+	
+	for k, v in pairs(objects["player"]) do
+		v:draw()
+	end
+
+	love.graphics.setColor(255, 255, 255, 255)
+	love.graphics.draw(scoreimg, 2, 0)
+	numberPrint(score, 2 + scoreimg:getWidth() + 4, 0)
+
+	love.graphics.draw(hiscoreimg, getWidth() - hiscoreimg:getWidth() - (#tostring(highscore) * 8) - 6, 0)
+	numberPrint(highscore, getWidth() - (#tostring(highscore) * 8) - 2, 0)
+
+	if paused then
+		love.graphics.draw(pauseimg, getWidth() / 2 - pauseimg:getWidth() / 2, getHeight() / 2 - pauseimg:getHeight())
+	else
+		if gameover or not gameBegin then
+			love.graphics.setColor(0, 0, 0, 255 * gameoverfade)
+			love.graphics.rectangle("fill", 0, 0, getWidth(), getHeight())
+		end
+
+		love.graphics.setColor(255, 255, 255, 255 * wavefade)
+		love.graphics.draw(levelimg, getWidth() / 2 - levelimg:getWidth() / 2 - (#tostring(currentLevel) * 18), getHeight() / 2 - 9)
+		numberPrint(currentLevel, getWidth() / 2 +  levelimg:getWidth() / 2 + (#tostring(currentLevel) * 18) / 2, getHeight() / 2 - 9, true)
+		love.graphics.setColor(255, 255, 255, 255)
+	end
+end
+
+function numberPrint(str, x, y, big)
+	local var = tostring(str)
+
+	local out = {}
+	for k = 1, #var do
+		for x = 1, #numberstring do
+			if var:sub(k, k) == numberstring:sub(x, x) then
+				table.insert(out, x)
 			end
 		end
 	end
 
-	love.graphics.setColor(0, 200, 0)
-	love.graphics.setFont(myFont)
-	love.graphics.print("Score: " .. score, 2, love.window.getHeight() - 12)
-
-	love.graphics.print("Hi-Score: " .. highscore, love.window.getWidth() - myFont:getWidth("Hi-Score: " .. highscore) - 2, love.window.getHeight() - 12)
-
-	if not gameover then
-		love.graphics.setFont(myOtherFont)
-		love.graphics.setColor(0, 100, 0, 255 * (math.floor(gravityNotice) % 2))
-		love.graphics.print("GRAVITY SHIFTING!", love.window.getWidth() / 2 - myOtherFont:getWidth("GRAVITY SHIFTING!") / 2, love.window.getHeight() / 2 - myOtherFont:getHeight() / 2)
-	else
-		love.graphics.setColor(0, 0, 0, 255 * gameoverfade)
-		love.graphics.rectangle("fill", 0, 0, love.window.getWidth(), love.window.getHeight())
+	local img = numbersimg
+	local quad = numberquads
+	local space = 9 
+	if big then
+		space = 18
+		img = bignumbersimg
+		quad = bignumberquads
 	end
+
+	for j = 1, #out do
+		love.graphics.draw(img, quad[out[j]], x + (j - 1) * space, y)
+	end
+end
+
+function nextLevel(next)
+	currentLevel = next
+	difficultyMod = 1 + (currentLevel / 48)
+	updateBGMPitch(1 * difficultyMod)
+	wavefade = 1
+end
+
+function updateBGMPitch(i)
+	if bgm.setPitch then
+		bgm:setPitch(i)
+	end
+end
+
+function gameUpdateSpawns(dt)
+	if gameoverfade > 0 then
+		return
+	end
+	
+	--SPIKES
+	spikeTimer = spikeTimer + dt
+	if spikeTimer > spikeRate then
+		gameSpawnSpike()
+	end
+
+	--COINS
+	coinTimer = coinTimer + dt
+	if coinTimer > coinRate then
+		gameSpawnCoin()
+	end
+	
+	--ROCKETS
+	rocketTimer = rocketTimer + dt
+	if rocketTimer > rocketRate then
+		gameSpawnRocket()
+	end
+
+	--SHIELDS
+	shieldTimer = shieldTimer + dt
+	if shieldTimer > shieldRate then
+		gameSpawnShield()
+	end
+
+	--GRAVITY
+	if gravityTimer > 0 then
+		gravityTimer = gravityTimer - dt
+	else
+		gravity = gravity * -1
+		objects["player"][1]:flipGravity(gravity)
+
+		if objects["shield"][1] then
+			objects["shield"][1]:flipGravity(gravity)
+		end
+
+		gravityTimer = love.math.random(10, 16)
+	end
+
+	if gravityTimer < 1 then
+		gravityNotice = gravityNotice + 8 * dt
+		
+		if not gravityNotify then
+			gravitysnd:play()
+			gravityNotify = true
+		end
+	else
+		gravityNotify = false
+		gravityNotice = 0
+	end
+end
+
+function gameSpawnSpike()
+	local v = objects["tile"][love.math.random(#objects["tile"])]
+
+	if v.y >= 0 and v.x > 0 and v.x < getWidth() - 8 then
+		if not v.hasSpike then
+			local dir = 1
+			if v.y == 0 then
+				dir = -1
+			end
+
+			table.insert(objects["spike"], spike:new(v.x, v.y, dir, v))
+
+			v.hasSpike = true
+			spikeTimer = 0
+		end
+	else
+		gameSpawnSpike()
+	end
+end
+
+function gameSpawnCoin()
+	local g = gravity
+
+	local x = love.math.random(2 * 8, 48 * 8)
+	local y
+	if g == 1 then
+		y = love.math.random(21 * 8, 28 * 8)
+	else
+		y = love.math.random(1 * 8, 8 * 8)
+	end
+
+	if #objects["coin"] > 0 then
+		local lastCoin = objects["coin"][#objects["coin"]]
+
+		if dist(lastCoin.x, lastCoin.y, x, y) <= 24 then
+			gameSpawnCoin()
+			return
+		end
+	end
+	table.insert(objects["coin"], coin:new(x, y))
+
+	coinTimer = 0
+end
+
+function gameSpawnRocket()
+	if currentLevel < 4 then
+		return
+	end
+
+	if love.math.random(100) < 20 then
+		table.insert(objects["rocket"], rocket:new())
+	end
+	rocketTimer = 0
+end
+
+function gameSpawnShield()
+	if objects["player"][1] then
+		if objects["player"][1].shield or #objects["shield"] > 0 then
+			return
+		end
+	end
+
+	if love.math.random(100) < 30 then
+		table.insert(objects["shield"], shield:new(love.math.random(8, 48 * 8), 26 *  8))
+	end
+	shieldTimer = 0
 end
 
 function gameSetup()
@@ -125,40 +333,37 @@ function gameSetup()
 	objects["player"] = {}
 	objects["coin"] = {}
 	objects["spike"] = {}
+	objects["rocket"] = {}
+	objects["shield"] = {}
 
-	objects["player"][1] = newPlayer(25 * 8, 26 * 8)
+	objects["player"][1] = player:new(25 * 8, 26 * 8)
 
+	gameMakeTiles()
+end
+
+function gameMakeTiles()
 	for k = 1, 50 do
-		table.insert(objects["tile"], newTile((k - 1) * 8, 232))
-		table.insert(objects["tile"], newTile((k - 1) * 8, 0))
+		table.insert(objects["tile"], tile:new((k - 1) * 8, 232))
+		table.insert(objects["tile"], tile:new((k - 1) * 8, 0))
 	end
 
 	for k = 1, 30 do
-		table.insert(objects["tile"], newTile(0, (k - 1) * 8))
-		table.insert(objects["tile"], newTile(392, (k - 1) * 8))
+		table.insert(objects["tile"], tile:new(0, (k - 1) * 8))
+		table.insert(objects["tile"], tile:new(392, (k - 1) * 8))
 	end
-end
-
-function gameSpawnSpike()
-	local v = objects["player"][1]
-	local trace = math.ceil((v.y + (v.height / 2)) / 8)
-
-	if gravity == -1 then
-		repeat
-			trace = trace - 1
-			print(trace, "!")
-		until trace < 2
-	else
-		repeat
-			trace = trace + 1
-			print(trace, "!")
-		until trace > 28
-	end
-
-	table.insert(objects["spike"], newSpike(math.floor(v.x / 8) * 8, trace * 8, gravity))
 end
 
 function game_keypressed(key)
+	if key == controls["pause"] then
+		if not gameover then
+			paused = not paused
+
+			if paused then
+				pausesnd:play()
+			end
+		end
+	end
+
 	if not objects["player"][1] then
 		return
 	end
@@ -180,30 +385,4 @@ function game_keyreleased(key)
 	elseif key == controls["left"] then
 		objects["player"][1]:moveleft(false)
 	end
-end
-
-function newBackgroundSquare(x, y)
-	local squares = {}
-
-	squares.x = x
-	squares.y = y
-
-	squares.width = love.math.random(2, 10)
-
-	squares.color = {0, love.math.random(130, 170), love.math.random(20, 40)}
-	squares.speed = love.math.random(80, 140)
-
-	function squares:update(dt)
-		self.x = self.x - self.speed * dt
-		if self.x + self.width < -self.width then
-			self.x = love.window.getWidth() + self.width
-		end
-	end
-
-	function squares:draw()
-		love.graphics.setColor(unpack(self.color))
-		love.graphics.rectangle("fill", self.x, self.y, self.width, self.width)
-	end
-
-	return squares
 end

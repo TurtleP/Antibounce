@@ -1,64 +1,75 @@
-function newSpike(x, y, gravity)
-	local spike = {}
+spike = class("spike")
 
-	spike.x = x
-	spike.y = y
+function spike:init(x, y, gravity, tileObject)
+	self.x = x
+	self.y = y
 
-	spike.passive = true
-	spike.width = 8
-	spike.height = 4
-	spike.static = true
-	spike.staticY = y
+	self.passive = true
+	self.width = 8
+	self.height = 8
+	self.static = true
+	self.staticY = y
 
-	spike.mask = {}
-	spike.speedx = 0
-	spike.speedy = 0
-	spike.timer = 0
+	self.mask = {}
+	self.speedx = 0
+	self.speedy = 0
+	self.timer = 0
 
 	local q = 1
 	if gravity == -1 then
 		q = 2
 	end
-	spike.quadi = q
+	self.quadi = q
 
-	function spike:update(dt)
-		if not self.start then
+	if not gravity then
+		return
+	end
+	self.onTile = tileObject
+	self.lifeTime = love.math.random(5)
+end
 
-			if self.quadi == 1 then
-				if self.y > self.staticY - self.height then
-					self.y = self.y - 40 * dt
-				else
-					self.start = true
-					self.passive = false
-				end
+function spike:update(dt)
+	if not self.start then
+		if self.quadi == 1 then
+			if self.y > self.staticY - self.height then
+				self.y = math.min(self.y - 40 * dt, self.staticY - self.height)
+			else
+				self.start = true
+				self.passive = false
+			end
+		else
+			if self.y < self.staticY + self.height then
+				self.y = math.max(self.y + 40 * dt, self.staticY + self.height)
 			else
 				self.start = true
 				self.passive = false
 			end
 		end
+	end
 	
-		if self.start then
-			self.timer = self.timer + dt
-			if self.timer > 16 then
-				if self.quadi == 1 then
-					self.y = self.y + 40 * dt
-					if self.y > self.staticY then
-						self.remove = true
-					end
-				else
-					self.y = self.y - 40 * dt
-					if self.y < self.staticY then
-						self.remove = true
-					end
+	if self.start and self.lifeTime then
+		self.timer = self.timer + dt
+		if self.timer > self.lifeTime then
+			if self.quadi == 1 then
+				self.y = self.y + 40 * dt
+				if self.y > self.staticY then
+					self.remove = true
+				end
+			else
+				self.y = self.y - 40 * dt
+				if self.y < self.staticY then
+					self.remove = true
 				end
 			end
 		end
-	end
 
-	function spike:draw()
-		love.graphics.setColor(255, 255, 255)
-		love.graphics.draw(spikeimg, spikequads[self.quadi], self.x, self.y)
+		if self.remove then
+			self.onTile.hasSpike = false
+		end
 	end
-
-	return spike
+end
+	
+function spike:draw()
+	love.graphics.setColor(255, 255, 255, 255)
+	love.graphics.draw(spikeimg, spikequads[self.quadi], self.x, self.y)
 end

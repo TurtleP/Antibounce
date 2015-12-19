@@ -1,6 +1,8 @@
 function gameover_load()
 	state = "gameover"
 
+	updateBGMPitch(1)
+	
 	love.saveData()
 end
 
@@ -15,19 +17,19 @@ function gameover_draw()
 		v:draw()
 	end
 
-	love.graphics.setFont(myOtherFont)
-
 	love.graphics.setColor(0, 90, 0)
-	love.graphics.print("Game Over", love.window.getWidth() / 2 - myOtherFont:getWidth("Game Over") / 2, love.window.getHeight() / 2 - myOtherFont:getHeight())
+	love.graphics.draw(gameoverimg, getWidth() / 2 - gameoverimg:getWidth() / 2, 80)
 
-	love.graphics.print("Your score: " .. score, love.window.getWidth() / 2 - myOtherFont:getWidth("Your score: " .. score) / 2, love.window.getHeight() / 2 - myOtherFont:getHeight() / 2 + 8)
-
-	love.graphics.setFont(myFont)
-	love.graphics.print("Press ESCAPE to play again", love.window.getWidth() / 2 - myFont:getWidth("Press ESCAPE to play again") / 2, love.window.getHeight() / 2 + myFont:getHeight() / 2 + 16)
+	love.graphics.draw(finalscore, getWidth() / 2 - finalscore:getWidth() / 2, getHeight() / 2 - 8)
+	numberPrint(score, (getWidth() / 2 - (#tostring(score) * 18) / 2), 144, true)
+	
+	love.graphics.draw(gameoverdone, getWidth() / 2 - gameoverdone:getWidth() / 2, 184)
 end
 
 function gameover_keypressed(key)
-	if key == "escape" then
-		menu_load()
-	end
+	menu_load()
+end
+
+function gameover_mousepressed(x, y, button)
+	menu_load()
 end

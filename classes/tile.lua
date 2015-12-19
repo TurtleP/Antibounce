@@ -1,17 +1,23 @@
-function newTile(x, y, i, layer)
-	local tile = {}
+tile = class("tile")
 
-	tile.x = x
-	tile.y = y
-	tile.width = 8
-	tile.height = 8
+function tile:init(x, y, width, height)
+	self.x = x
+	self.y = y
+	self.width = width or 8
+	self.height = height or 8
 
-	tile.speedx = 0
-	tile.speedy = 0
+	self.speedx = 0
+	self.speedy = 0
 
-	function tile:draw()
-		love.graphics.draw(tileimg, self.x, self.y)
+	self.hasSpike = false
+end
+
+function tile:draw()
+	love.graphics.setColor(255, 255, 255, 255)
+
+	for y = 1, self.height / 8 do
+		for x = 1, self.width / 8 do
+			love.graphics.draw(tileimg, self.x + (x - 1) * 8, self.y + (y - 1) * 8)
+		end
 	end
-
-	return tile
 end

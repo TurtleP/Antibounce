@@ -11,6 +11,21 @@ function colorfade(currenttime, maxtime, c1, c2) --Color function, HugoBDesigner
 	return ret
 end
 
+function changeScale(s)
+	if s then
+		scale = s
+		love.window.setMode(400 * scale, 240 * scale, {vsync = true})
+	else
+		love.window.setFullscreen(true, "normal")
+
+		local width, height = love.window.getDesktopDimensions()
+
+		love.window.setMode(width, height, {vsync = true})
+
+		scale = math.floor(math.max(width / 400, height / 240))
+	end
+end
+
 function dist(x1, y1, x2, y2, ab)
 	local ab = ab or "absolute" --true by default
 	local width = x2-x1
@@ -22,29 +37,6 @@ function dist(x1, y1, x2, y2, ab)
 	return math.sqrt(width^2+height^2)
 end
 
-function makeShaders()
-	shaders = {}
-
-	shaders.bloom = love.graphics.newShader([[extern vec2 size;
-	extern int samples = 5; // pixels per axis; higher = bigger glow, worse performance
-	extern float quality = 2.5; // lower = smaller glow, better quality
-
-	vec4 effect(vec4 colour, Image tex, vec2 tc, vec2 sc)
-	{
-	  vec4 source = Texel(tex, tc);
-	  vec4 sum = vec4(0);
-	  int diff = (samples - 1) / 2;
-	  vec2 sizeFactor = vec2(1) / size * quality;
-	  
-	  for (int x = -diff; x <= diff; x++)
-	  {
-	    for (int y = -diff; y <= diff; y++)
-	    {
-	      vec2 offset = vec2(x, y) * sizeFactor;
-	      sum += Texel(tex, tc + offset);
-	    }
-	  }
-	  
-	  return ((sum / (samples * samples)) + source) * colour;
-	}]])
+function newNotice(text, duration)
+	table.insert(notices, notice:new(text, duration))
 end
