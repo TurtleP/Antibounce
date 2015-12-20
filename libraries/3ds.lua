@@ -489,7 +489,7 @@ rocket.draw = function(self)
 
 	love.graphics.setScreen(self.screen)
 
-	oldRocketDraw()
+	oldRocketDraw(self)
 	
 	love.graphics.setDepth(0)
 end

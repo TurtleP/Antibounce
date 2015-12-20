@@ -21,6 +21,8 @@ credits =
 	"SauloFX",
 	"Odyssey",
 	"Muddmaker",
+	"Idiot9.0",
+	"",
 	"",
 	"This has been updated",
 	"since initial release",
