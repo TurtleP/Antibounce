@@ -52,8 +52,8 @@ function rocket:update(dt)
 	end
 
 	if self.remove then
-		table.insert(objects["rocket"], particle:new(self.x + self.r, self.y + self.r, -100))
-		table.insert(objects["rocket"], particle:new(self.x + self.r * 2, self.y + self.r, 100))
+		table.insert(objects["rocketParticle"], particle:new(self.x + self.r, self.y + self.r, -100))
+		table.insert(objects["rocketParticle"], particle:new(self.x + self.r * 2, self.y + self.r, 100))
 	end
 end
 

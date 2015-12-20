@@ -19,6 +19,13 @@ function game_load()
 	currentLevel = 0
 	difficultyMod = 1 + (currentLevel / 100)
 
+	--[[
+		Coins
+		Spikes
+		Rockets
+		Tiles fall?
+	--]]
+
 	spikeTimer = 0
 	spikeRate = 5
 
@@ -126,6 +133,10 @@ function game_draw()
 	for k, v in pairs(objects["rocket"]) do
 		v:draw()
 	end
+
+	for k, v in pairs(objects["rocketParticle"]) do
+		v:draw()
+	end
 	
 	for k, v in pairs(objects["shield"]) do
 		v:draw()
@@ -187,11 +198,12 @@ function numberPrint(str, x, y, big)
 	end
 end
 
-function nextLevel(next)
-	currentLevel = next
-	difficultyMod = 1 + (currentLevel / 10) - 0.1
-	updateBGMPitch(1 * difficultyMod)
+function nextLevel(toLevel)
+	difficultyMod = math.min(1 + (toLevel / 20) - 0.05, 1.5)
+
+	currentLevel = toLevel
 	wavefade = 1
+	updateBGMPitch(1 * difficultyMod)
 end
 
 function updateBGMPitch(i)
@@ -334,6 +346,7 @@ function gameSetup()
 	objects["spike"] = {}
 	objects["rocket"] = {}
 	objects["shield"] = {}
+	objects["rocketParticle"] = {}
 
 	objects["player"][1] = player:new(25 * 8, 26 * 8)
 

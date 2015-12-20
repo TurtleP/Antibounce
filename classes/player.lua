@@ -14,7 +14,8 @@ function player:init(x, y, respawns)
 	self.mask =
 	{
 		["tile"] = true,
-		["spike"] = true
+		["spike"] = true,
+		["rocket"] = true
 	}
 
 	self.speedx = 0
@@ -52,6 +53,15 @@ function player:upCollide(name, data)
 		self:die()
 	end
 
+	if name == "rocket" then
+		shakeIntensity = 6
+		data.remove = true
+		if self.shield then
+			return self:loseShield()
+		end
+		self:die()
+	end
+
 	if name == "tile" then
 		self.speedy = 300
 		jumpsnd:play()
@@ -59,9 +69,15 @@ function player:upCollide(name, data)
 	end
 end
 
-function player:loseShield()
+function player:loseShield(hor)
 	shielddownsnd:play()
-	self.speedy = -self.speedy
+
+	if not hor then
+		self.speedy = -self.speedy
+	else
+		self.speedx = -self.speedx
+	end
+
 	self.shield = false
 	return false
 end
@@ -86,6 +102,15 @@ end
 
 function player:downCollide(name, data)
 	if name == "spike" then
+		if self.shield then
+			return self:loseShield()
+		end
+		self:die()
+	end
+
+	if name == "rocket" then
+		shakeIntensity = 6
+		data.remove = true
 		if self.shield then
 			return self:loseShield()
 		end
@@ -156,6 +181,15 @@ function player:leftCollide(name, data)
 		return false
 	end
 
+	if name == "rocket" then
+		shakeIntensity = 6
+		data.remove = true
+		if self.shield then
+			return self:loseShield(true)
+		end
+		self:die()
+	end
+
 	if name == "spike" then
 		self.speedx = -self.speedx
 		return false
@@ -166,6 +200,15 @@ function player:rightCollide(name, data)
 	if name == "tile" then
 		self.speedx = -self.speedx
 		return false
+	end
+
+	if name == "rocket" then
+		shakeIntensity = 6
+		data.remove = true
+		if self.shield then
+			return self:loseShield(true)
+		end
+		self:die()
 	end
 
 	if name == "spike" then
@@ -185,14 +228,6 @@ end
 function player:passiveCollide(name, data)
 	if name == "coin" then
 		data:delete()
-	elseif name == "rocket" then
-		shakeIntensity = 6
-		data.remove = true
-		if self.shield then
-			self.shield = false
-			return
-		end
-		self:die()
 	elseif name == "shield" then
 		self.shield = true
 		shieldsnd:play()
