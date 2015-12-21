@@ -1,7 +1,9 @@
---[[
-	Handle the gyro controls!
---]]
+--touch modules
+function love.touchpressed(id, x, y, pressure)
+	gyroController:touchPressed(id, x, y, pressure)
+end
 
+--Gyro class
 function newGyro(xAxis, yAxis, Zaxis, touch, unTouch)
 
 	local gyro = {}

@@ -7,6 +7,7 @@ controls["left"] = "cpadleft"
 controls["pause"] = "start"
 
 local screens = {"top", "bottom"}
+local banner = love.graphics.newImage("graphics/lovepotionbanner.png")
 
 love.deleteSave = function()
 	os.remove("smdc:/3ds/Antibounce/save.txt")
@@ -215,6 +216,10 @@ intro_draw = function()
 	love.graphics.setScreen("top")
 
 	oldIntroDraw()
+
+	love.graphics.setScreen("bottom")
+
+	love.graphics.draw(banner, love.graphics.getWidth() / 2 - banner:getWidth() / 2, getHeight() / 2 - banner:getHeight() / 2)
 end
 
 --game

@@ -25,7 +25,7 @@ function spike:init(x, y, gravity, tileObject)
 		return
 	end
 	self.onTile = tileObject
-	self.lifeTime = love.math.random(5)
+	self.lifeTime = love.math.random(4, 8)
 end
 
 function spike:update(dt)

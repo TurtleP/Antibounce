@@ -13,7 +13,7 @@ function rocket:init()
 
 	self.active = false
 
-	self.speed = 100
+	self.speed = 80
 
 	if objects["player"][1] then
 		self.target = objects["player"][1]

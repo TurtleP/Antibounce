@@ -119,7 +119,8 @@ function love.load()
 	diesnd = love.audio.newSource("audio/die.wav")
 	selectsnd = love.audio.newSource("audio/selection.wav")
 	pausesnd = love.audio.newSource("audio/pause.wav")
-
+	rocketalert = love.audio.newSource("audio/rocket.wav")
+	
 	winFont = love.graphics.newFont("graphics/upheaval.ttf", 20)
 
 	--Require
@@ -173,9 +174,11 @@ function love.load()
 				end
 		end, nil, nil,
 		
-		function(self, id, x, y, pressure)
+		function(id, x, y, pressure)
 			if pressure > 0.5 then
-				paused = not paused
+				if state == "game" then
+					paused = not paused
+				end
 			end
 		end)
 
@@ -183,6 +186,8 @@ function love.load()
 	elseif love.system.getOS() == "3ds" then
 		require 'libraries/3ds'
 	end
+
+	--love.audio.setVolume(0)
 
 	notices = {}
 

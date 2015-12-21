@@ -27,23 +27,26 @@ function game_load()
 	--]]
 
 	spikeTimer = 0
-	spikeRate = 5
+	spikeRate = 3
 
 	coinTimer = 0
-	coinRate = 4
+	coinRate = 2
 
-	rocketRate = 7
+	coinsCollected = 0
+
+	rocketRate = 4
 	rocketTimer = 0
 
-	shieldRate = 8
+	shieldRate = 6
 	shieldTimer = 0
+
+	combo = 0
+	comboTimeout = 0
 
 	gameSetup()
 	
 	gravityNotify = false
 	gameBegin = false
-	
-	nextLevel(currentLevel + 1)
 
 	screenShake = 0
 	shakeIntensity = 0
@@ -54,10 +57,22 @@ function game_update(dt)
 		shakeIntensity = shakeIntensity - 20 * dt
 	end
 
-	dt = dt * difficultyMod
+	if difficultyMod > 0 then
+		dt = dt * difficultyMod
+	end
 
 	if paused then
 		return
+	end
+
+	if combo > 0 then
+		if comboTimeout < 3 then
+			comboTimeout = comboTimeout + dt
+		else
+			comboTimeout = 0
+			combo = 0
+			updateDifficulty()
+		end
 	end
 
 	for k, v in ipairs(squares) do
@@ -102,10 +117,6 @@ function game_update(dt)
 			objects["player"][1]:setMoving(true)
 			gameBegin = true
 		end
-	end
-
-	if wavefade > 0 then
-		wavefade = math.max(wavefade - dt * 0.6, 0)
 	end
 
 	gameUpdateSpawns(dt)
@@ -164,11 +175,6 @@ function game_draw()
 			love.graphics.setColor(0, 0, 0, 255 * gameoverfade)
 			love.graphics.rectangle("fill", 0, 0, getWidth(), getHeight())
 		end
-
-		love.graphics.setColor(255, 255, 255, 255 * wavefade)
-		love.graphics.draw(levelimg, getWidth() / 2 - levelimg:getWidth() / 2 - (#tostring(currentLevel) * 18), getHeight() / 2 - 9)
-		numberPrint(currentLevel, getWidth() / 2 +  levelimg:getWidth() / 2 + (#tostring(currentLevel) * 18) / 2, getHeight() / 2 - 9, true)
-		love.graphics.setColor(255, 255, 255, 255)
 	end
 end
 
@@ -198,12 +204,28 @@ function numberPrint(str, x, y, big)
 	end
 end
 
-function nextLevel(toLevel)
-	difficultyMod = math.min(1 + (toLevel / 20) - 0.05, 1.5)
+function addScore(s, c)
+	combo = math.min(c, 4)
+	local comboValue = s * combo
+	local add = s
 
-	currentLevel = toLevel
-	wavefade = 1
-	updateBGMPitch(1 * difficultyMod)
+	updateDifficulty()
+	if combo > 1 then
+		add = comboValue
+		comboTimeout = 0
+	end
+
+	score = score + add
+end
+
+function updateDifficulty()
+	if combo > 1 then
+		difficultyMod = 1 + math.min(combo * 0.05 , 1.75) - 0.05
+		updateBGMPitch(1 * difficultyMod)
+	else
+		difficultyMod = 1
+		updateBGMPitch(1)
+	end
 end
 
 function updateBGMPitch(i)
@@ -232,7 +254,25 @@ function gameUpdateSpawns(dt)
 	--ROCKETS
 	rocketTimer = rocketTimer + dt
 	if rocketTimer > rocketRate then
-		gameSpawnRocket()
+		if spawnRocket then
+			table.insert(objects["rocket"], rocket:new())
+		end
+		rocketTimer = 0
+	else
+		if rocketTimer > rocketRate - 1 then
+			if not hasChecked then
+				if love.math.random(100) < 20 then
+					rocketalert:play()
+					spawnRocket = true
+				else
+					spawnRocket = false
+				end
+				hasChecked = true
+			end
+		else
+			hasChecked = false
+			spawnRocket = false
+		end	
 	end
 
 	--SHIELDS
@@ -312,17 +352,6 @@ function gameSpawnCoin()
 	coinTimer = 0
 end
 
-function gameSpawnRocket()
-	if currentLevel < 4 then
-		return
-	end
-
-	if love.math.random(100) < 20 then
-		table.insert(objects["rocket"], rocket:new())
-	end
-	rocketTimer = 0
-end
-
 function gameSpawnShield()
 	if objects["player"][1] then
 		if objects["player"][1].shield or #objects["shield"] > 0 then
@@ -331,7 +360,7 @@ function gameSpawnShield()
 		end
 	end
 
-	if love.math.random(100) < 10 then
+	if love.math.random(100) < 4 then
 		table.insert(objects["shield"], shield:new(love.math.random(8, 48 * 8), 26 *  8))
 	end
 	shieldTimer = 0
