@@ -257,6 +257,7 @@ function gameUpdateSpawns(dt)
 		if spawnRocket then
 			table.insert(objects["rocket"], rocket:new())
 		end
+		spawnRocket = false
 		rocketTimer = 0
 	else
 		if rocketTimer > rocketRate - 1 then
@@ -271,7 +272,6 @@ function gameUpdateSpawns(dt)
 			end
 		else
 			hasChecked = false
-			spawnRocket = false
 		end	
 	end
 
