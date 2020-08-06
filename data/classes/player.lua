@@ -5,6 +5,8 @@ local CONST_PLAYER_RADIUS = 16
 local CONST_PLAYER_BOUNCE = 640
 local CONST_PLAYER_MAX_SPEED = 320
 
+local Ghost = require("data.classes.ghost")
+
 function Player:new(x, y)
     Player.super.new(self, x, y, 32, 32)
 
@@ -13,11 +15,41 @@ function Player:new(x, y)
 
     self.flags.invincible = false
     self.flags.shield = false
+    self.flags.dashing = false
 
+    self.rightHeld = false
+    self.leftHeld = false
+    self.upHeld = false
+    self.downHeld = false
+
+    self.dashTimer = 0
     self.invincibleTimer = 0
 end
 
 function Player:update(dt)
+    if self.flags.invincible then
+        self.invincibleTimer = self.invincibleTimer + 24 * dt
+
+        if self.invincibleTimer > 72 then
+            self.flags.invincible = false
+            self.invincibleTimer = 0
+        end
+    end
+
+    if self.flags.dashing then
+        self.dashTimer = self.dashTimer + 8 * dt
+        if math.floor(self.dashTimer % 2) == 0 then
+            tiled:addEntity(Ghost(self.x, self.y))
+        end
+
+        if self.dashTimer > 5.5 then
+            self.dashTimer = 0
+            self.flags.dashing = false
+        end
+
+        return
+    end
+
     if self.rightHeld then
         self.speed.x = math.min(self.speed.x + CONST_PLAYER_MAX_SPEED * dt, CONST_PLAYER_MAX_SPEED)
     elseif self.leftHeld then
@@ -27,15 +59,6 @@ function Player:update(dt)
             self.speed.x = math.max(self.speed.x - CONST_PLAYER_MAX_SPEED * dt, 0)
         else
             self.speed.x = math.min(self.speed.x + CONST_PLAYER_MAX_SPEED * dt, 0)
-        end
-    end
-
-    if self.flags.invincible then
-        self.invincibleTimer = self.invincibleTimer + 24 * dt
-
-        if self.invincibleTimer > 72 then
-            self.flags.invincible = false
-            self.invincibleTimer = 0
         end
     end
 end
@@ -52,6 +75,7 @@ function Player:draw()
     love.graphics.setColor(color)
 
     love.graphics.circle("fill", self.x + CONST_PLAYER_RADIUS, self.y + CONST_PLAYER_RADIUS, CONST_PLAYER_RADIUS)
+
     love.graphics.setColor(1, 1, 1)
 end
 
@@ -65,7 +89,8 @@ local CONST_PLAYER_COLLECT =
 local CONST_PLAYER_NOCOLLIDE =
 {
     particle = true,
-    coinzone = true
+    coinzone = true,
+    ghost = true
 }
 
 function Player:filter()
@@ -81,6 +106,8 @@ function Player:filter()
             return false
         elseif CONST_PLAYER_NOCOLLIDE[tostring(other)] then
             return false
+        elseif not other:is("tile") and entity:dashing() then
+            return false
         end
 
         return "slide"
@@ -88,6 +115,9 @@ function Player:filter()
 end
 
 function Player:gravity()
+    if self.flags.dashing then
+        return 0
+    end
     return 1080
 end
 
@@ -129,6 +159,7 @@ end
 
 function Player:die()
     self.flags.remove = true
+
     state:call("spawnParticles", self, utility.Hex2Color("#2e7d32"))
     state:call("shakeScreen", 10)
 end
@@ -140,6 +171,10 @@ function Player:floorCollide(entity, name, type)
 
         if name == "spike" and entity:facing("up") then
             self:addHealth(-1)
+        else
+            if not physics:flipped() then
+                self.flags.dashing = false
+            end
         end
 
         return true
@@ -181,7 +216,29 @@ function Player:ceilCollide(entity, name)
             self:addHealth(-1)
         end
 
+        if physics:flipped() then
+            self.flags.dashing = false
+        end
+
         return true
+    end
+end
+
+function Player:flipGravity()
+    local current = self:gravity()
+    self.flags.flipped = not self.flags.flipped
+
+    self.gravity = function(self)
+        if self.flags.dashing then
+            return 0
+        end
+
+        local multiplier = 1
+        if self.flags.flipped then
+            multiplier = -1
+        end
+
+        return current * multiplier
     end
 end
 
@@ -195,9 +252,49 @@ function Player:moveLeft(held)
     self.leftHeld = held
 end
 
-function Player:stop()
-    self.leftHeld = false
-    self.rightHeld = false
+function Player:moveUp(held)
+    self.downHeld = false
+    self.upHeld = held
+end
+
+function Player:moveDown(held)
+    self.upHeld = false
+    self.downHeld = held
+end
+
+function Player:stop(hor)
+    if hor then
+        self.leftHeld = false
+        self.rightHeld = false
+    else
+        self.downHeld = false
+        self.upHeld = false -- what's upheld?
+    end
+end
+
+function Player:setDashing(isDashing)
+    if not self.flags.dashing and isDashing then
+        self:setVelocity(0, 0)
+
+        local gravity = state:call("gravity")
+
+        if self.leftHeld then
+            self.speed.x = -180
+        elseif self.rightHeld then
+            self.speed.x = 180
+        end
+
+        if self.upHeld then
+            self.speed.y = -180 * gravity
+        elseif self.downHeld then
+            self.speed.y = 180 * gravity
+        end
+    end
+    self.flags.dashing = isDashing
+end
+
+function Player:dashing()
+    return self.flags.dashing
 end
 
 function Player:__tostring()

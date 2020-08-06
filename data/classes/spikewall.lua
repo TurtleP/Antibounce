@@ -29,12 +29,12 @@ function SpikeWall:newSpike()
 
     local x, y = self.x, self.y
     if direction == "left" or direction == "right" then
-        y = love.math.random(self.y, self.y + (self.height - 16)) + 8
+        y = love.math.random(self.y, self.y + (self.height - 16))
         if direction == "right" then
             x = x + self.width / 2
         end
     elseif direction == "up" or direction == "down" then
-        x = love.math.random(self.x, self.x + (self.width - 16)) + 8
+        x = love.math.random(self.x, self.x + (self.width - 16))
         if direction == "down" then
             y = y + self.height - 16
         end

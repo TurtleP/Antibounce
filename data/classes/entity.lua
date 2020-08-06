@@ -17,6 +17,7 @@ function Entity:new(x, y, width, height)
 
     self.flags.passive = false
     self.flags.remove  = false
+    self.flags.flipped = false
 end
 
 function Entity:update(dt)
@@ -41,8 +42,34 @@ function Entity:filter()
     end
 end
 
+function Entity:flipGravity()
+    local current = self:gravity()
+    self.flags.flipped = not self.flags.flipped
+
+    self.gravity = function(self)
+        local multiplier = 1
+        if self.flags.flipped then
+            multiplier = -1
+        end
+
+        return current * multiplier
+    end
+end
+
 function Entity:is(name)
     return tostring(self) == name
+end
+
+function Entity:setVelocity(x, y)
+    if type(x) == "table" and x.isvector then
+        self.speed = vector
+    else
+        self.speed = Vector(x, y)
+    end
+end
+
+function Entity:velocity()
+    return self.speed
 end
 
 function Entity:depth()

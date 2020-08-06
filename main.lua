@@ -20,8 +20,6 @@ audio      = require("data.audio")
         - Hard: Background squares, 1 health, fast paced, coins last for 2s?
 
     - High Score
-    - Combos
-    - "Dashing"
 --]]
 
 function love.load()

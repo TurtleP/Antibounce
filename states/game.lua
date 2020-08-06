@@ -18,8 +18,12 @@ Game.DEBUG =
     "b: Kill PLAYER",
     "y: Spawn COIN at PLAYER position",
     "x: Spawn ROCKET",
-    "dpleft: Give PLAYER a SHIELD"
+    "dpleft: Give PLAYER a SHIELD",
+    "dpdown: Flip GRAVITY"
 }
+
+
+Game.PausedText = "GAME PAUSED"
 
 function Game:load()
     physics:init(tiled:loadMap("game"))
@@ -44,6 +48,8 @@ function Game:load()
 
     self.shake = 0
     self.shakeIntensity = 0
+
+    self.gameover = false
 end
 
 function Game:update(dt)
@@ -60,6 +66,11 @@ function Game:update(dt)
     end
 
     tiled:update(dt)
+
+    if self.gameover then
+        return
+    end
+
     self.score:update(dt)
 
     if self.coin.timer < self.coin.maxTime then
@@ -67,8 +78,20 @@ function Game:update(dt)
     else
         local zones = physics:getEntity("coinzone", true)
         local currentZone = zones[love.math.random(#zones)]
+        local actions = {currentZone.spawnCoin}
 
-        currentZone:spawnCoin()
+        if self.player:health() < self.player:heartCount() then
+            table.insert(actions, currentZone.spawnHeart)
+        end
+
+        local random = love.math.random()
+        if random < 0.10 then
+            table.insert(actions, currentZone.spawnShield)
+        end
+
+        local action = actions[love.math.random(#actions)]
+        action(currentZone)
+
         self.coin.timer = 0
         self.coin.maxTime = love.math.random(3, 4)
     end
@@ -85,15 +108,36 @@ function Game:draw()
     self.display:draw(self.player)
     self.score:draw()
 
-    if not self.showDebug then
-        return
+    if self.showDebug then
+        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.print(self.debugString, 0, 128)
     end
 
-    love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.print(self.debugString, 0, 128)
+    if self.paused then
+        love.graphics.setColor(utility.Hex2Color("#212121AA"))
+        love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
+
+        love.graphics.setFont(titleFont)
+        love.graphics.setColor(utility.Hex2Color("#00701a"))
+        love.graphics.print(Game.PausedText, (love.graphics.getWidth() - titleFont:getWidth(Game.PausedText)) / 2, (love.graphics.getHeight() * 0.4) + math.sin(love.timer.getTime() * 4) * 6)
+    end
 end
 
 function Game:gamepadpressed(joy, button)
+    if button == "start" then
+        self.paused = not self.paused
+
+        if self.paused then
+            audio:play("Pause")
+        end
+
+        return
+    elseif button == "leftshoulder" or button == "rightshoulder" then
+        self.player:setDashing(true)
+    end
+
+    -- [[ DEBUG STUFF ]] --
+
     if button == "b" then
         self.player:die()
     elseif button == "y" then
@@ -104,11 +148,21 @@ function Game:gamepadpressed(joy, button)
     elseif button == "dpleft" then
         local x, y = unpack(self.player:position())
         tiled:addEntity(Shield(x, y))
+    elseif button == "dpdown" then
+        physics:flipGravity()
     end
 end
 
 function Game:gamepadaxis(joy, axis, value)
+    if self.paused then
+        return
+    end
+
     value = tonumber(value)
+
+    if self.player:dashing() then
+        return
+    end
 
     if axis == "leftx" then
         if value > 0.5 then
@@ -116,9 +170,24 @@ function Game:gamepadaxis(joy, axis, value)
         elseif value < -0.5 then
             self.player:moveLeft(true)
         else
+            self.player:stop(true)
+        end
+    elseif axis == "lefty" then
+        if value > 0.5 then
+            self.player:moveDown(true)
+        elseif value < -0.5 then
+            self.player:moveUp(true)
+        else
             self.player:stop()
         end
     end
+end
+
+function Game:gravity()
+    if physics:flipped() then
+        return -1
+    end
+    return 1
 end
 
 function Game:updateDifficulty()

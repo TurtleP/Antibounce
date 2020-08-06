@@ -14,6 +14,9 @@ function Physics:init(entities)
         self:addEntity(entities[i])
     end
 
+    self.flags = {}
+    self.flags.flipped = false
+
     return self
 end
 
@@ -105,6 +108,18 @@ function Physics:getEntity(name, all)
     end
 
     return ret
+end
+
+function Physics:flipGravity()
+    self.flags.flipped = not self.flags.flipped
+
+    for _, entity in pairs(self.entities) do
+        entity:flipGravity()
+    end
+end
+
+function Physics:flipped()
+    return self.flags.flipped
 end
 
 function Physics:checkCollision(entity, other)

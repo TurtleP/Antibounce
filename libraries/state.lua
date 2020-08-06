@@ -96,7 +96,11 @@ function state:call(func, ...)
     local args = {...}
 
     if self.activeState[func] then
-        self.activeState[func](self.activeState, unpack(args))
+        local ret = self.activeState[func](self.activeState, unpack(args))
+
+        if ret then
+            return ret
+        end
     end
 end
 
