@@ -16,7 +16,10 @@ function HUD:draw(player)
     for i = 1, player:heartCount() do
         if i <= player:health() then
             love.graphics.draw(HUD.graphic, HUD.quads[2], self.x + (i - 1) * 36, self.y)
+        else
+            love.graphics.draw(HUD.graphic, HUD.quads[3], self.x + (i - 1) * 36, self.y)
         end
+
         love.graphics.draw(HUD.graphic, HUD.quads[1], self.x + (i - 1) * 36, self.y)
     end
 end

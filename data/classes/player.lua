@@ -10,6 +10,9 @@ function Player:new(x, y)
 
     self.maxHearts = 3
     self.hearts = self.maxHearts
+
+    self.flags.invincible = false
+    self.invincibleTimer = 0
 end
 
 function Player:update(dt)
@@ -24,11 +27,25 @@ function Player:update(dt)
             self.speed.x = math.min(self.speed.x + CONST_PLAYER_MAX_SPEED * dt, 0)
         end
     end
+
+    if self.flags.invincible then
+        self.invincibleTimer = self.invincibleTimer + 24 * dt
+
+        if self.invincibleTimer > 72 then
+            self.flags.invincible = false
+            self.invincibleTimer = 0
+        end
+    end
 end
 
 function Player:draw()
+    if self.flags.invincible and math.floor(self.invincibleTimer % 4) == 0 then
+        return
+    end
+
     love.graphics.setColor(utility.Hex2Color("#2e7d32"))
     love.graphics.circle("fill", self.x + CONST_PLAYER_RADIUS, self.y + CONST_PLAYER_RADIUS, CONST_PLAYER_RADIUS)
+    love.graphics.setColor(1, 1, 1)
 end
 
 function Player:gravity()
@@ -44,14 +61,22 @@ function Player:health()
 end
 
 function Player:addHealth(amount)
+    if self.flags.invincible then
+        return
+    end
+
     self.hearts = math.min(self.hearts + amount, self.maxHearts)
 
     if amount < 0 then
         audio:play("Dead")
+
+        if self.hearts > 0 then
+            self.flags.invincible = true
+        end
     end
 
     if self.hearts <= 0 then
-        --dead
+        self.flags.remove = true
     end
 end
 
