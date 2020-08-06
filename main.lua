@@ -11,14 +11,13 @@ audio      = require("data.audio")
 --[[
     == TO DO LIST ==
     - Rockets
-    - Coins
-    - Shields
-    - Health pickups
+    - Shields (spawn)
+    - Health pickups (spawn)
 
     - Difficulties:
-        - Easy: No background squares, 5 health
-        - Normal: Background squares, 3 health
-        - Hard: Background squares, 1 health, fast paced
+        - Easy: No background squares, 5 health, coins last for 8s
+        - Normal: Background squares, 3 health, coins last for 4s
+        - Hard: Background squares, 1 health, fast paced, coins last for 2s?
 
     - High Score
     - Combos
@@ -32,6 +31,7 @@ function love.load()
 
     mainFont = love.graphics.newFont("graphics/04B_30.ttf", 32)
     titleFont = love.graphics.newFont("graphics/04B_30.ttf", 80)
+    scoreFont = love.graphics.newFont("graphics/04B_30.ttf", 18)
 
     backgroundMusic = love.audio.newSource("audio/bgm.ogg", "stream")
     backgroundMusic:setLooping(true)
@@ -42,8 +42,9 @@ function love.load()
     currentBackground = utility.Hex2Color("#338a3e")
     toBackground = utility.Hex2Color("#66bb6a")
 
-    state:switch("menu")
-    love.audio.setVolume(0.10)
+    love.math.setRandomSeed(os.time())
+
+    state:switch("game")
 end
 
 function love.update(dt)
@@ -75,6 +76,7 @@ function love.gamepadpressed(joy, button)
     if button == "a" then
         debug:toggle()
     end
+    state:gamepadpressed(joy, button)
 end
 
 function love.gamepadaxis(joy, axis, value)

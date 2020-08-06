@@ -90,6 +90,16 @@ function state:gamepadaxis(joy, axis, value)
     self.activeState:gamepadaxis(joy, axis, value)
 end
 
+-- [[ OTHER STUFF ]] --
+
+function state:call(func, ...)
+    local args = {...}
+
+    if self.activeState[func] then
+        self.activeState[func](self.activeState, unpack(args))
+    end
+end
+
 function state:unload()
     if self:isCurrentStateValid("unload") then
         self.activeState:unload()

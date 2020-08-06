@@ -1,12 +1,15 @@
 local Tiled = {}
 
-local Tile = require("data.classes.tile")
-local Player = require("data.classes.player")
+-- Game
+local Tile      = require("data.classes.tile")
+local Player    = require("data.classes.player")
 local SpikeWall = require("data.classes.spikewall")
-local Spike = require("data.classes.spike")
+local Spike     = require("data.classes.spike")
+local CoinZone  = require("data.classes.coinzone")
 
-local Square = require("data.classes.square")
-local Beam   = require("data.classes.beam")
+-- Menu / General
+local Square    = require("data.classes.square")
+local Beam      = require("data.classes.beam")
 
 function Tiled:init()
     -- map listing
@@ -87,6 +90,8 @@ function Tiled:spawnEntity(name, args)
     elseif name == "spike" then
         local entity = Spike(args.x, args.y, args.dir)
         self:addEntity(entity)
+    elseif name == "coinzone" then
+        table.insert(self.data, CoinZone(args.x, args.y - 8, args.width, args.height))
     end
 end
 

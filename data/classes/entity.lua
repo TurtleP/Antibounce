@@ -70,6 +70,10 @@ function Entity:bounds()
     return {self.x, self.y, self.width, self.height}
 end
 
+function Entity:position()
+    return {self.x, self.y}
+end
+
 function Entity:size()
     return {self.width, self.height}
 end

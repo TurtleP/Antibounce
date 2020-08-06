@@ -1,6 +1,8 @@
 local Entity = require("data.classes.entity")
 local Player = Entity:extend()
 
+local Particle = require("data.classes.particle")
+
 local CONST_PLAYER_RADIUS = 16
 local CONST_PLAYER_BOUNCE = 640
 local CONST_PLAYER_MAX_SPEED = 320
@@ -12,6 +14,8 @@ function Player:new(x, y)
     self.hearts = self.maxHearts
 
     self.flags.invincible = false
+    self.flags.shield = false
+
     self.invincibleTimer = 0
 end
 
@@ -43,9 +47,34 @@ function Player:draw()
         return
     end
 
-    love.graphics.setColor(utility.Hex2Color("#2e7d32"))
+    local color = utility.Hex2Color("#2e7d32")
+    if self.flags.shield then
+        color = utility.Hex2Color("#1976d2")
+    end
+    love.graphics.setColor(color)
+
     love.graphics.circle("fill", self.x + CONST_PLAYER_RADIUS, self.y + CONST_PLAYER_RADIUS, CONST_PLAYER_RADIUS)
     love.graphics.setColor(1, 1, 1)
+end
+
+function Player:filter()
+    return function(entity, other)
+        if other:is("coin") then
+            other:collect()
+            return false
+        elseif other:is("coinzone") then
+            return false
+        elseif other:is("heart") then
+            self:addHealth(1)
+            other:collect()
+            return false
+        elseif other:is("shield") then
+            self.flags.shield = true
+            other:collect()
+            return false
+        end
+        return "slide"
+    end
 end
 
 function Player:gravity()
@@ -61,14 +90,18 @@ function Player:health()
 end
 
 function Player:addHealth(amount)
-    if self.flags.invincible then
+    if self.flags.invincible or self.flags.shield then
+        if self.flags.shield then
+            audio:play("ShieldDown")
+            self.flags.shield = false
+        end
         return
     end
 
     self.hearts = math.min(self.hearts + amount, self.maxHearts)
 
     if amount < 0 then
-        audio:play("Dead")
+        audio:play("Hurt")
 
         if self.hearts > 0 then
             self.flags.invincible = true
@@ -76,17 +109,23 @@ function Player:addHealth(amount)
     end
 
     if self.hearts <= 0 then
-        self.flags.remove = true
+        self:die()
     end
 end
 
-function Player:filter()
-    return function(entity, other)
-        if other:passive() then
-            return false
-        end
-        return "slide"
-    end
+function Player:hasShield()
+    return self.flags.shield
+end
+
+function Player:die()
+    self.flags.remove = true
+
+    local particleColor = utility.Hex2Color("#2e7d32")
+
+    tiled:addEntity(Particle(self.x, self.y, nil, particleColor, {-100, -100}))
+    tiled:addEntity(Particle(self.x + self.width, self.y, nil, particleColor, {100, -100}))
+    tiled:addEntity(Particle(self.x + self.width, self.y + self.height, nil, particleColor, {100, -50}))
+    tiled:addEntity(Particle(self.x, self.y + self.height, nil, particleColor, {-100, -50}))
 end
 
 function Player:floorCollide(entity, name, type)
