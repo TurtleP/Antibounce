@@ -6,6 +6,8 @@ local Score = require("data.classes.score")
 local Coin = require("data.classes.coin")
 local Shield = require("data.classes.shield")
 
+local Particle = require("data.classes.particle")
+
 Game.DEBUG =
 {
     "OS: " .. love._os,
@@ -37,9 +39,22 @@ function Game:load()
 
     self.difficultyModMin = 1
     self.difficultyMod = self.difficultyModMin
+
+    self.paused = false
+
+    self.shake = 0
+    self.shakeIntensity = 0
 end
 
 function Game:update(dt)
+    if self.paused then
+        return
+    end
+
+    if self.shakeIntensity > 0 then
+        self.shakeIntensity = self.shakeIntensity - 5 * dt
+    end
+
     if self.difficultyMod > 0 then
         dt = dt * self.difficultyMod
     end
@@ -60,6 +75,11 @@ function Game:update(dt)
 end
 
 function Game:draw()
+    if self.shakeIntensity > 0 then
+        local x, y = (love.math.random() * 2 - 1) * self.shakeIntensity,  (love.math.random() * 2 - 1) * self.shakeIntensity
+        love.graphics.translate(x, y)
+    end
+
     tiled:draw()
 
     self.display:draw(self.player)
@@ -103,10 +123,21 @@ end
 
 function Game:updateDifficulty()
     if self.score:getCombo() > 1 then
-        self.difficultyMod = self.difficultyModMin + math.min(self.score:getCombo() * 0.05 , 2) - 0.05
+        self.difficultyMod =  math.min(self.difficultyModMin + self.score:getCombo() * 0.075 , 2)
         return
     end
     self.difficultyMod = self.difficultyModMin
+end
+
+function Game:spawnParticles(entity, color)
+    tiled:addEntity(Particle(entity.x, entity.y, nil, color, {-100, -100}))
+    tiled:addEntity(Particle(entity.x + entity.width, entity.y, nil, color, {100, -100}))
+    tiled:addEntity(Particle(entity.x + entity.width, entity.y + entity.height, nil, color, {100, -50}))
+    tiled:addEntity(Particle(entity.x, entity.y + entity.height, nil, color, {-100, -50}))
+end
+
+function Game:shakeScreen(amount)
+    self.shakeIntensity = math.abs(amount)
 end
 
 function Game:addScore(amount)

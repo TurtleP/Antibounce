@@ -10,7 +10,7 @@ function Score:new(x, y, width)
     self.value = 0
     self.combo = 0
 
-    self.comboTimeout = 6
+    self.comboTimeout = 8
     self.comboTimeoutTimer = 0
 end
 
@@ -31,7 +31,7 @@ end
 function Score:draw()
     love.graphics.setFont(scoreFont)
 
-    love.graphics.setColor(utility.Hex2Color("#00330066"))
+    love.graphics.setColor(utility.Hex2Color("#003300AA"))
     love.graphics.rectangle("fill", self.x - 2, self.y - 2, self.width + 4, scoreFont:getHeight() + 4)
 
     local y = (self.y - 2) + ((scoreFont:getHeight() + 4) - scoreFont:getHeight()) / 2 + 2
@@ -47,13 +47,14 @@ function Score:draw()
 end
 
 function Score:add(amount)
-    self.combo = math.min(self.combo + 1, 4)
+    self.combo = self.combo + 1
     local add = amount
 
     if self.combo > 1 then
         add = self.combo * amount
     end
 
+    self.comboTimeoutTimer = 0
     self.value = self.value + add
 end
 

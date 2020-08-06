@@ -28,6 +28,7 @@ function Coin:new(x, y, isBad)
     end
 
     self.colors = colors
+    self.particleColor = colors[1]
 
     self.timer = 0
     self.maxTime = 10
@@ -63,6 +64,7 @@ function Coin:collect()
     end
 
     audio:play(sound)
+    state:call("spawnParticles", self, self.particleColor)
 
     state:call("addScore", amount)
     self.flags.remove = true

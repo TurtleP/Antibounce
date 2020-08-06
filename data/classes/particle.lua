@@ -25,6 +25,8 @@ end
 function Particle:draw()
     love.graphics.setColor(self.color)
     love.graphics.rectangle("fill", self.x, self.y, self.width, self.height)
+
+    love.graphics.setColor(1, 1, 1, 1)
 end
 
 function Particle:gravity()
@@ -42,7 +44,7 @@ end
 
 function Particle:countBounce()
     self.bounces = self.bounces + 1
-    audio:play("Bounce")
+    -- audio:play("Bounce")
 end
 
 function Particle:ceilCollide(_, name, _)

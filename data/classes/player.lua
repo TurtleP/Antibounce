@@ -1,8 +1,6 @@
 local Entity = require("data.classes.entity")
 local Player = Entity:extend()
 
-local Particle = require("data.classes.particle")
-
 local CONST_PLAYER_RADIUS = 16
 local CONST_PLAYER_BOUNCE = 640
 local CONST_PLAYER_MAX_SPEED = 320
@@ -57,22 +55,34 @@ function Player:draw()
     love.graphics.setColor(1, 1, 1)
 end
 
+local CONST_PLAYER_COLLECT =
+{
+    coin = true,
+    heart = true,
+    shield = true,
+}
+
+local CONST_PLAYER_NOCOLLIDE =
+{
+    particle = true,
+    coinzone = true
+}
+
 function Player:filter()
     return function(entity, other)
-        if other:is("coin") then
+        if CONST_PLAYER_COLLECT[tostring(other)] then
             other:collect()
+            if other:is("heart") then
+                self:addHealth(1)
+            elseif other:is("shield") then
+                self.flags.shield = true
+            end
+
             return false
-        elseif other:is("coinzone") then
-            return false
-        elseif other:is("heart") then
-            self:addHealth(1)
-            other:collect()
-            return false
-        elseif other:is("shield") then
-            self.flags.shield = true
-            other:collect()
+        elseif CONST_PLAYER_NOCOLLIDE[tostring(other)] then
             return false
         end
+
         return "slide"
     end
 end
@@ -119,13 +129,8 @@ end
 
 function Player:die()
     self.flags.remove = true
-
-    local particleColor = utility.Hex2Color("#2e7d32")
-
-    tiled:addEntity(Particle(self.x, self.y, nil, particleColor, {-100, -100}))
-    tiled:addEntity(Particle(self.x + self.width, self.y, nil, particleColor, {100, -100}))
-    tiled:addEntity(Particle(self.x + self.width, self.y + self.height, nil, particleColor, {100, -50}))
-    tiled:addEntity(Particle(self.x, self.y + self.height, nil, particleColor, {-100, -50}))
+    state:call("spawnParticles", self, utility.Hex2Color("#2e7d32"))
+    state:call("shakeScreen", 10)
 end
 
 function Player:floorCollide(entity, name, type)

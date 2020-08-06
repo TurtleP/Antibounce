@@ -11,10 +11,10 @@ function CoinZone:draw()
 end
 
 function CoinZone:spawnCoin()
-    local x = love.math.random(self.x, self.x + self.width - 16)
-    local y = love.math.random(self.y, self.y + self.height - 16)
+    local x = love.math.random(0, self.width - 16)
+    local y = love.math.random(0, self.height - 16)
 
-    tiled:addEntity(Coin(x, y, love.math.random() <= 0.5))
+    tiled:addEntity(Coin(self.x + x, self.y + y, love.math.random() <= 0.5))
 end
 
 function CoinZone:static()
