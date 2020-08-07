@@ -24,6 +24,7 @@ Game.DEBUG =
 
 
 Game.PausedText = "GAME PAUSED"
+Game.OverText = "GAME OVER"
 
 function Game:load()
     physics:init(tiled:loadMap("game"))
@@ -50,6 +51,7 @@ function Game:load()
     self.shakeIntensity = 0
 
     self.gameover = false
+    self.gameoverTimer = 0
 end
 
 function Game:update(dt)
@@ -68,6 +70,14 @@ function Game:update(dt)
     tiled:update(dt)
 
     if self.gameover then
+        self.gameoverTimer = self.gameoverTimer + dt
+
+        if self.gameoverTimer > 3 then
+            state:switch("menu", function()
+                highScore = self.score:getValue()
+                love.filesystem.write("highscore", msgpack.pack(highScore))
+            end)
+        end
         return
     end
 
@@ -78,19 +88,37 @@ function Game:update(dt)
     else
         local zones = physics:getEntity("coinzone", true)
         local currentZone = zones[love.math.random(#zones)]
-        local actions = {currentZone.spawnCoin}
 
-        if self.player:health() < self.player:heartCount() then
-            table.insert(actions, currentZone.spawnHeart)
+        local actions =
+        {
+            function()
+                local random = love.math.random()
+
+                if random < 0.15 then
+                    if self.player:health() < self.player:heartCount() then
+                        return currentZone:spawnHeart()
+                    end
+                end
+
+                return false
+            end,
+
+            function()
+                local random = love.math.random()
+                if random < 0.05 then
+                    return currentZone:spawnShield()
+                end
+
+                return false
+            end
+        }
+
+        local index = love.math.random(#actions)
+        local zoneAction = actions[index]
+
+        if not zoneAction() then
+            currentZone:spawnCoin()
         end
-
-        local random = love.math.random()
-        if random < 0.10 then
-            table.insert(actions, currentZone.spawnShield)
-        end
-
-        local action = actions[love.math.random(#actions)]
-        action(currentZone)
 
         self.coin.timer = 0
         self.coin.maxTime = love.math.random(3, 4)
@@ -113,13 +141,18 @@ function Game:draw()
         love.graphics.print(self.debugString, 0, 128)
     end
 
-    if self.paused then
+    if self.paused or self.gameover then
         love.graphics.setColor(utility.Hex2Color("#212121AA"))
         love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
 
         love.graphics.setFont(titleFont)
         love.graphics.setColor(utility.Hex2Color("#00701a"))
-        love.graphics.print(Game.PausedText, (love.graphics.getWidth() - titleFont:getWidth(Game.PausedText)) / 2, (love.graphics.getHeight() * 0.4) + math.sin(love.timer.getTime() * 4) * 6)
+
+        local text = Game.PausedText
+        if self.gameover then
+            text = Game.OverText
+        end
+        love.graphics.print(text, (love.graphics.getWidth() - titleFont:getWidth(text)) / 2, (love.graphics.getHeight() * 0.4) + math.sin(love.timer.getTime() * 4) * 6)
     end
 end
 
@@ -190,6 +223,10 @@ function Game:gravity()
     return 1
 end
 
+function Game:setGameover()
+    self.gameover = true
+end
+
 function Game:updateDifficulty()
     if self.score:getCombo() > 1 then
         self.difficultyMod =  math.min(self.difficultyModMin + self.score:getCombo() * 0.075 , 2)
@@ -215,7 +252,9 @@ function Game:addScore(amount)
 end
 
 function Game:unload()
-
+    self.hud = nil
+    self.score = nil
+    self.player = nil
 end
 
 function Game:getName()

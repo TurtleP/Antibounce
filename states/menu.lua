@@ -1,12 +1,22 @@
 local Menu = {}
 
+local Score = require("data.classes.score")
+
 local GAME_TITLE = "AntiBounce"
 
-function Menu:load()
+function Menu:load(initFunc)
     physics:init(tiled:loadMap("menu"))
 
     self.player = physics:getEntity("player")
     self.beams = physics:getEntity("beam", true)
+
+    self.arrow = love.graphics.newImage("graphics/arrow.png")
+
+    if initFunc then
+        initFunc()
+    end
+
+    self.highScoreDisplay = Score(19, 54, highScore)
 end
 
 function Menu:update(dt)
@@ -34,6 +44,17 @@ function Menu:draw()
 
     love.graphics.setColor(utility.Hex2Color("#00701a"))
     love.graphics.print(GAME_TITLE, TITLE_POS_X, TITLE_POS_Y)
+
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.draw(self.arrow, self.beams[1]:center().x - self.arrow:getWidth() / 2, self.beams[1].y - 48 + math.sin(love.timer.getTime() * 8) * 4)
+
+    self.highScoreDisplay:draw()
+
+    love.graphics.setColor(utility.Hex2Color("#2e7d32"))
+    love.graphics.print("HI-SCORE", 11, 23)
+
+    love.graphics.setColor(utility.Hex2Color("#003300"))
+    love.graphics.print("HI-SCORE", 12, 24)
 end
 
 function Menu:gamepadaxis(joy, axis, value)
@@ -45,7 +66,7 @@ function Menu:gamepadaxis(joy, axis, value)
         elseif value < -0.5 then
             self.player:moveLeft(true)
         else
-            self.player:stop()
+            self.player:stop(true)
         end
     end
 end

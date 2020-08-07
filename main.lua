@@ -1,18 +1,17 @@
 local nest = require("libraries.nest")
 
-state      = require("libraries.state")
-utility    = require("libraries.utility")
-tiled      = require("libraries.tiled")
-physics    = require("libraries.physics")
-debug      = require("libraries.debug")
+state   = require("libraries.state")
+utility = require("libraries.utility")
+tiled   = require("libraries.tiled")
+physics = require("libraries.physics")
+debug   = require("libraries.debug")
+msgpack = require("libraries.msgpack")
 
-audio      = require("data.audio")
+audio   = require("data.audio")
 
 --[[
     == TO DO LIST ==
     - Rockets
-    - Shields (spawn)
-    - Health pickups (spawn)
 
     - Difficulties:
         - Easy: No background squares, 5 health, coins last for 8s
@@ -37,12 +36,18 @@ function love.load()
 
     colorTimer = 0
 
+    highScore = nil
+
+    if love.filesystem.getInfo("highscore") then
+        highScore = msgpack.unpack(love.filesystem.read("highscore"))
+    end
+
     currentBackground = utility.Hex2Color("#338a3e")
     toBackground = utility.Hex2Color("#66bb6a")
 
     love.math.setRandomSeed(os.time())
 
-    state:switch("game")
+    state:switch("menu")
 end
 
 function love.update(dt)

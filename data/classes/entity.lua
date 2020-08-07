@@ -101,6 +101,12 @@ function Entity:position()
     return {self.x, self.y}
 end
 
+function Entity:center()
+    local x, y = self.x + (self.width / 2), self.y + (self.height / 2)
+
+    return Vector(x, y)
+end
+
 function Entity:size()
     return {self.width, self.height}
 end

@@ -26,16 +26,28 @@ function CoinZone:spawnCoin()
     tiled:addEntity(Coin(self.x + x, self.y + y, isBadCoin))
 end
 
-function Coin:spawnShield()
-    local x, y = self:generateCoords()
+function CoinZone:spawnShield()
+    if #physics:getEntity("shield") == 0 then
+        local x, y = self:generateCoords()
 
-    tiled:addEntity(Shield(self.x + x, self.y + y))
+        tiled:addEntity(Shield(self.x + x, self.y + y))
+
+        return true
+    end
+
+    return false
 end
 
-function Coin:spawnHeart()
-    local x, y = self:generateCoords()
+function CoinZone:spawnHeart()
+    if #physics:getEntity("heart") == 0 then
+        local x, y = self:generateCoords()
 
-    tiled:addEntity(Heart(self.x + x, self.y + y))
+        tiled:addEntity(Heart(self.x + x, self.y + y))
+
+        return true
+    end
+
+    return false
 end
 
 function CoinZone:static()

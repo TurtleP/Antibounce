@@ -90,7 +90,8 @@ local CONST_PLAYER_NOCOLLIDE =
 {
     particle = true,
     coinzone = true,
-    ghost = true
+    ghost = true,
+    beam = true
 }
 
 function Player:filter()
@@ -106,7 +107,7 @@ function Player:filter()
             return false
         elseif CONST_PLAYER_NOCOLLIDE[tostring(other)] then
             return false
-        elseif not other:is("tile") and entity:dashing() then
+        elseif not other:is("tile") and not other:is("spikewall") and self:dashing() then
             return false
         end
 
@@ -162,6 +163,8 @@ function Player:die()
 
     state:call("spawnParticles", self, utility.Hex2Color("#2e7d32"))
     state:call("shakeScreen", 10)
+
+    state:call("setGameover")
 end
 
 function Player:floorCollide(entity, name, type)
