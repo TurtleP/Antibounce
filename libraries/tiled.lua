@@ -65,6 +65,12 @@ function Tiled:sortByDepth()
     end)
 end
 
+--[[
+---- Spawns an Entity with @name and @args
+---- @name : string for the class name
+---- @args : table for properties (usually size at minimum)
+---- Used for Static map Entity loading (aka at loadtime)
+--]]
 function Tiled:spawnEntity(name, args)
     local triggers =
     {
@@ -87,14 +93,16 @@ function Tiled:spawnEntity(name, args)
         table.insert(self.data, Beam(args.x, args.y - 8, triggers[args.properties.script], args.properties.script))
     elseif name == "spikewall" then
         table.insert(self.data, SpikeWall(args.x, args.y - 8, args.width, args.height, args.properties.direction))
-    elseif name == "spike" then
-        local entity = Spike(args.x, args.y, args.dir)
-        self:addEntity(entity)
     elseif name == "coinzone" then
         table.insert(self.data, CoinZone(args.x, args.y - 8, args.width, args.height))
     end
 end
 
+--[[
+---- Spawns an Entity @entity
+---- @entity: Entity class created
+---- Used for Dynamic map Entity loading (conditional stuff, etc)
+--]]
 function Tiled:addEntity(entity)
     physics:addEntity(entity)
     table.insert(self.data, entity)

@@ -84,6 +84,7 @@ local CONST_PLAYER_COLLECT =
     coin = true,
     heart = true,
     shield = true,
+    rocket = true
 }
 
 local CONST_PLAYER_NOCOLLIDE =
@@ -102,10 +103,12 @@ function Player:filter()
                 self:addHealth(1)
             elseif other:is("shield") then
                 self.flags.shield = true
+            elseif other:is("rocket") then
+                self:addHealth(-1)
             end
 
             return false
-        elseif CONST_PLAYER_NOCOLLIDE[tostring(other)] then
+        elseif CONST_PLAYER_NOCOLLIDE[tostring(other)] or other:passive() then
             return false
         elseif not other:is("tile") and not other:is("spikewall") and self:dashing() then
             return false

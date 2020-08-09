@@ -4,6 +4,7 @@ local CoinZone = Entity:extend()
 local Coin = require("data.classes.coin")
 local Shield = require("data.classes.shield")
 local Heart = require("data.classes.heart")
+local Rocket = require("data.classes.rocket")
 
 function CoinZone:new(x, y, width, height)
     CoinZone.super.new(self, x, y, width, height)
@@ -31,6 +32,18 @@ function CoinZone:spawnShield()
         local x, y = self:generateCoords()
 
         tiled:addEntity(Shield(self.x + x, self.y + y))
+
+        return true
+    end
+
+    return false
+end
+
+function CoinZone:spawnRocket()
+    if #physics:getEntity("rocket") == 0 then
+        local x, y = self:generateCoords()
+
+        tiled:addEntity(Rocket(self.x + x, self.y + y))
 
         return true
     end

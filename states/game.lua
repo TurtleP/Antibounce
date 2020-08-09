@@ -5,6 +5,7 @@ local Score = require("data.classes.score")
 
 local Coin = require("data.classes.coin")
 local Shield = require("data.classes.shield")
+local Rocket = require("data.classes.rocket")
 
 local Particle = require("data.classes.particle")
 
@@ -74,8 +75,7 @@ function Game:update(dt)
 
         if self.gameoverTimer > 3 then
             state:switch("menu", function()
-                highScore = self.score:getValue()
-                love.filesystem.write("highscore", msgpack.pack(highScore))
+                self:saveHiScore()
             end)
         end
         return
@@ -105,8 +105,19 @@ function Game:update(dt)
 
             function()
                 local random = love.math.random()
+
                 if random < 0.05 then
                     return currentZone:spawnShield()
+                end
+
+                return false
+            end,
+
+            function()
+                local random = love.math.random()
+
+                if random < 0.10 then
+                    return currentZone:spawnRocket()
                 end
 
                 return false
@@ -183,6 +194,9 @@ function Game:gamepadpressed(joy, button)
         tiled:addEntity(Shield(x, y))
     elseif button == "dpdown" then
         physics:flipGravity()
+    elseif button == "x" then
+        local x, y = unpack(self.player:position())
+        tiled:addEntity(Rocket(x + 32, y + 32))
     end
 end
 
@@ -190,6 +204,8 @@ function Game:gamepadaxis(joy, axis, value)
     if self.paused then
         return
     end
+
+    logger:debug("Axis: %s / Value %s", axis, tostring(value))
 
     value = tonumber(value)
 
@@ -221,6 +237,12 @@ function Game:gravity()
         return -1
     end
     return 1
+end
+
+function Game:saveHiScore()
+    highScore = self.score:getValue()
+    love.filesystem.write("highscore", msgpack.pack(highScore))
+    logger:debug("saving hi-score: " .. highScore)
 end
 
 function Game:setGameover()

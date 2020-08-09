@@ -100,6 +100,7 @@ function Spike:filter()
         if other:passive() or other:is("tile") then
             return false
         end
+
         return "slide"
     end
 end

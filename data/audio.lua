@@ -18,7 +18,7 @@ Audio.ShieldDown = love.audio.newSource(CONST_AUDIO_PATH .. "/shielddown.ogg", "
 
 function Audio:play(name)
     if not self[name] then
-        print("Failed to play sound '" .. name .. "'!")
+        logger:warning("Failed to play sound '%s'!", name)
         return
     end
 

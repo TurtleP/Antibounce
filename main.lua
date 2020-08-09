@@ -7,6 +7,8 @@ physics = require("libraries.physics")
 debug   = require("libraries.debug")
 msgpack = require("libraries.msgpack")
 
+logger = require("libraries.logger")
+
 audio   = require("data.audio")
 
 --[[
@@ -40,6 +42,7 @@ function love.load()
 
     if love.filesystem.getInfo("highscore") then
         highScore = msgpack.unpack(love.filesystem.read("highscore"))
+        logger:debug("hi-score loaded: " .. highScore)
     end
 
     currentBackground = utility.Hex2Color("#338a3e")
@@ -47,7 +50,7 @@ function love.load()
 
     love.math.setRandomSeed(os.time())
 
-    state:switch("menu")
+    state:switch("game")
 end
 
 function love.update(dt)
@@ -78,7 +81,10 @@ end
 function love.gamepadpressed(joy, button)
     if button == "a" then
         debug:toggle()
+    elseif button == "start" then
+        love.event.quit()
     end
+
     state:gamepadpressed(joy, button)
 end
 

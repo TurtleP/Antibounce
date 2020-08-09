@@ -1,6 +1,8 @@
 local Tile = require("data.classes.tile")
 local SpikeWall = Tile:extend()
 
+local Spike = require("data.classes.spike")
+
 function SpikeWall:new(x, y, width, height, directions)
     SpikeWall.super.new(self, x, y, width, height)
 
@@ -40,7 +42,7 @@ function SpikeWall:newSpike()
         end
     end
 
-    tiled:spawnEntity("spike", {x = x, y = y, dir = direction})
+    tiled:addEntity(Spike(x, y, direction))
 end
 
 return SpikeWall
