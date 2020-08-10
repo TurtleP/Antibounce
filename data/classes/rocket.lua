@@ -14,7 +14,7 @@ function Rocket:new(x, y)
     self.timer = 0
     self.lifeTime = love.math.random(3, 6)
 
-    self.moveSpeed = 320
+    self.moveSpeed = 240
 
     self.particleColors =
     {
@@ -26,13 +26,18 @@ end
 
 function Rocket:update(dt)
     local target = physics:getEntity("player")
+
+    if not target or target:dashing() then
+        return
+    end
+
     local spinFactor = math.pi / 8
 
     local speedAngle = math.atan2(self.speed.y, self.speed.x)
     local targetAngle = math.atan2((target.y + (target.height / 2)) - self.y, target.x - self.x)
 
     if speedAngle < targetAngle and targetAngle - speedAngle > math.pi then
-        spinFactor = spinFactor * -1
+        spinFactor = spinFactor * -1.5
     elseif speedAngle > targetAngle and speedAngle - targetAngle <= math.pi then
         spinFactor = spinFactor * -1
     end

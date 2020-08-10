@@ -195,7 +195,7 @@ function Game:gamepadpressed(joy, button)
     elseif button == "dpdown" then
         physics:flipGravity()
     elseif button == "x" then
-        local x, y = unpack(self.player:position())
+        local x, y = love.math.random(love.graphics.getWidth()), love.math.random(love.graphics.getHeight())
         tiled:addEntity(Rocket(x + 32, y + 32))
     end
 end

@@ -98,13 +98,19 @@ local CONST_PLAYER_NOCOLLIDE =
 function Player:filter()
     return function(entity, other)
         if CONST_PLAYER_COLLECT[tostring(other)] then
+            if other:is("rocket") then
+                if self:dashing() then
+                    return
+                end
+                self:addHealth(-1)
+            end
+
+
             other:collect()
             if other:is("heart") then
                 self:addHealth(1)
             elseif other:is("shield") then
                 self.flags.shield = true
-            elseif other:is("rocket") then
-                self:addHealth(-1)
             end
 
             return false
