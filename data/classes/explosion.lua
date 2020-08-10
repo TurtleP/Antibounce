@@ -12,6 +12,8 @@ function Explosion:new(x, y)
 
     self.timer = 0
     self.quadi = 1
+
+    state:call("shakeScreen", 4)
 end
 
 function Explosion:update(dt)

@@ -45,7 +45,10 @@ function Score:draw()
     love.graphics.setColor(utility.Hex2Color("#2e7d32"))
     love.graphics.print(self.value, self.x + (self.width - scoreFont:getWidth(self.value)) / 2, y)
 
-    love.graphics.setColor(utility.Hex2Color("#003300"))
+    love.graphics.setColor(utility.Hex2Color("#003300AA"))
+    love.graphics.rectangle("fill", self.x - 1, self.y + scoreFont:getHeight() + 11, (self.comboTimeoutTimer / self.comboTimeout) * self.width, 2)
+
+    love.graphics.setColor(utility.Hex2Color("#003d00"))
     love.graphics.rectangle("fill", self.x, self.y + scoreFont:getHeight() + 12, (self.comboTimeoutTimer / self.comboTimeout) * self.width, 2)
 end
 

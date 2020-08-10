@@ -46,11 +46,10 @@ end
 
 function Entity:flipGravity()
     local current = self:gravity()
-    self.flags.flipped = not self.flags.flipped
 
     self.gravity = function(self)
         local multiplier = 1
-        if self.flags.flipped then
+        if physics:flipped() then
             multiplier = -1
         end
 

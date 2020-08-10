@@ -111,6 +111,8 @@ function Physics:getEntity(name, all)
 end
 
 function Physics:flipGravity()
+    audio:play("Gravity")
+
     self.flags.flipped = not self.flags.flipped
 
     for _, entity in pairs(self.entities) do

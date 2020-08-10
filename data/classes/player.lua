@@ -24,6 +24,8 @@ function Player:new(x, y)
 
     self.dashTimer = 0
     self.invincibleTimer = 0
+
+    self.gravityPull = self:gravity()
 end
 
 function Player:update(dt)
@@ -105,8 +107,8 @@ function Player:filter()
                 self:addHealth(-1)
             end
 
-
             other:collect()
+
             if other:is("heart") then
                 self:addHealth(1)
             elseif other:is("shield") then
@@ -116,7 +118,7 @@ function Player:filter()
             return false
         elseif CONST_PLAYER_NOCOLLIDE[tostring(other)] or other:passive() then
             return false
-        elseif not other:is("tile") and not other:is("spikewall") and self:dashing() then
+        elseif not other:is("tile") and not other:is("spike") and not other:is("spikewall") and self:dashing() then
             return false
         end
 
@@ -237,20 +239,12 @@ function Player:ceilCollide(entity, name)
 end
 
 function Player:flipGravity()
-    local current = self:gravity()
-    self.flags.flipped = not self.flags.flipped
-
     self.gravity = function(self)
-        if self.flags.dashing then
+        if self:dashing() then
             return 0
         end
 
-        local multiplier = 1
-        if self.flags.flipped then
-            multiplier = -1
-        end
-
-        return current * multiplier
+        return self.gravityPull * state:call("gravity")
     end
 end
 

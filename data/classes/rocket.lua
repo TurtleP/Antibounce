@@ -54,7 +54,7 @@ function Rocket:update(dt)
 
     self.timer = self.timer + dt
     if self.timer > self.lifeTime then
-        self.flags.remove = true
+        self:collect()
     end
 
     -- rocket's angle isn't at 0
@@ -67,7 +67,9 @@ end
 
 function Rocket:collect()
     audio:play("Rocket")
-    state:call("spawnParticles", self, self.particleColors[love.math.random(#self.particleColors)])
+
+    local colorID = love.math.random(#self.particleColors)
+    state:call("spawnParticles", self, self.particleColors[colorID])
 
     tiled:addEntity(Explosion(self.x, self.y))
 

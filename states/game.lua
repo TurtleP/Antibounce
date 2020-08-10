@@ -53,11 +53,21 @@ function Game:load()
 
     self.gameover = false
     self.gameoverTimer = 0
+
+
+    self.gravityTimer = 0
+    self.gravityMaxTime = love.math.random(10, 16)
 end
 
 function Game:update(dt)
     if self.paused then
         return
+    end
+
+    self.gravityTimer = self.gravityTimer + dt
+    if self.gravityTimer > self.gravityMaxTime then
+        physics:flipGravity()
+        self.gravityTimer = 0
     end
 
     if self.shakeIntensity > 0 then
@@ -240,13 +250,17 @@ function Game:gravity()
 end
 
 function Game:saveHiScore()
-    highScore = self.score:getValue()
+    if highscore and self.score:getValue() > highScore then
+        highScore = self.score:getValue()
+    end
+
     love.filesystem.write("highscore", msgpack.pack(highScore))
     logger:debug("saving hi-score: " .. highScore)
 end
 
 function Game:setGameover()
     self.gameover = true
+    self.difficultyMod = 1
 end
 
 function Game:updateDifficulty()
