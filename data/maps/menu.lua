@@ -8,7 +8,7 @@ return {
   height = 23,
   tilewidth = 32,
   tileheight = 32,
-  nextlayerid = 3,
+  nextlayerid = 4,
   nextobjectid = 31,
   properties = {},
   tilesets = {
@@ -21,7 +21,7 @@ return {
       margin = 0,
       columns = 1,
       image = "../../graphics/wall.png",
-      imagewidth = 32,
+      imagewidth = 64,
       imageheight = 32,
       objectalignment = "unspecified",
       tileoffset = {
@@ -36,6 +36,32 @@ return {
       properties = {},
       terrains = {},
       tilecount = 1,
+      tiles = {}
+    },
+    {
+      name = "wall",
+      firstgid = 2,
+      tilewidth = 32,
+      tileheight = 32,
+      spacing = 0,
+      margin = 0,
+      columns = 2,
+      image = "../../graphics/wall.png",
+      imagewidth = 64,
+      imageheight = 32,
+      objectalignment = "unspecified",
+      tileoffset = {
+        x = 0,
+        y = 0
+      },
+      grid = {
+        orientation = "orthogonal",
+        width = 32,
+        height = 32
+      },
+      properties = {},
+      terrains = {},
+      tilecount = 2,
       tiles = {}
     }
   },
@@ -123,20 +149,7 @@ return {
           shape = "rectangle",
           x = 288,
           y = 704,
-          width = 288,
-          height = 32,
-          rotation = 0,
-          visible = true,
-          properties = {}
-        },
-        {
-          id = 9,
-          name = "tile",
-          type = "",
-          shape = "rectangle",
-          x = 704,
-          y = 704,
-          width = 288,
+          width = 704,
           height = 32,
           rotation = 0,
           visible = true,
@@ -301,21 +314,6 @@ return {
           }
         },
         {
-          id = 29,
-          name = "trigger",
-          type = "",
-          shape = "rectangle",
-          x = 576,
-          y = 736,
-          width = 128,
-          height = 0,
-          rotation = 0,
-          visible = true,
-          properties = {
-            ["script"] = "credits"
-          }
-        },
-        {
           id = 30,
           name = "trigger",
           type = "",
@@ -348,6 +346,23 @@ return {
       encoding = "base64",
       compression = "zstd",
       data = "KLUv/WBgDXUBACgBAAAAAROg0FcDcIOlxQF1USLlpMiKhGXk2DeDIjIUMUMTGXoi80lpSiU2hVI="
+    },
+    {
+      type = "tilelayer",
+      x = 0,
+      y = 0,
+      width = 40,
+      height = 23,
+      id = 3,
+      name = "Background",
+      visible = true,
+      opacity = 1,
+      offsetx = 0,
+      offsety = 0,
+      properties = {},
+      encoding = "base64",
+      compression = "zstd",
+      data = "KLUv/WBgDV0DAMAAAAMDAwMDAwMDAwMDAwMDAwMDAwMDAwEwqCAfEINXABFcFSQhEUYERVCEJQEREOHKB1e5jzUhX5UNZQJlAmUkZSZlJmUm5UbKTcpNykXKTMpMykzKTMqNlPMyri7hVJ4PPNMtW9lMs2b+"
     }
   }
 }

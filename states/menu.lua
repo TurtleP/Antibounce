@@ -43,9 +43,10 @@ function Menu:draw()
     love.graphics.setFont(mainFont)
     love.graphics.setColor(colors:get("DarkGreen"))
 
-    love.graphics.print("HI-SCORE", (love.graphics.getWidth() - mainFont:getWidth("HI-SCORE")) / 2, 28)
-
-    love.graphics.print(highScore, (love.graphics.getWidth() - mainFont:getWidth(highScore)) / 2, 64)
+    if highScore then
+        love.graphics.print("HI-SCORE", (love.graphics.getWidth() - mainFont:getWidth("HI-SCORE")) / 2, 28)
+        love.graphics.print(highScore, (love.graphics.getWidth() - mainFont:getWidth(highScore)) / 2, 64)
+    end
 
     love.graphics.setColor(1, 1, 1, 1)
 end

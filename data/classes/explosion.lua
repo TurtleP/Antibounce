@@ -20,7 +20,7 @@ function Explosion:new(x, y)
         colors:get("DarkestGreen"),
         colors:get("DarkGreen"),
         colors:get("DarkGreen"),
-        colors:get("LightGreen").
+        colors:get("LightGreen"),
         colors:get("LightGreen"),
         colors:get("LightestGreen")
     }

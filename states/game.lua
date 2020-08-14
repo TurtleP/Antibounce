@@ -38,6 +38,41 @@ function Game:load()
         gameover = love.graphics.newImage("graphics/gameover.png"),
         paused = love.graphics.newImage("graphics/paused.png")
     }
+
+    self.actions =
+    {
+        function(currentZone)
+            local random = love.math.random()
+
+            if random < 0.15 then
+                if self.player:health() < self.player:heartCount() then
+                    return currentZone:spawnHeart()
+                end
+            end
+
+            return false
+        end,
+
+        function(currentZone)
+            local random = love.math.random()
+
+            if random < 0.05 then
+                return currentZone:spawnShield()
+            end
+
+            return false
+        end,
+
+        function(currentZone)
+            local random = love.math.random()
+
+            if random < 0.10 then
+                return currentZone:spawnRocket()
+            end
+
+            return false
+        end
+    }
 end
 
 function Game:update(dt)
@@ -77,50 +112,7 @@ function Game:update(dt)
     if self.coin.timer < self.coin.maxTime then
         self.coin.timer = self.coin.timer + dt
     else
-        local zones = physics:getEntity("coinzone", true)
-        local currentZone = zones[love.math.random(#zones)]
-
-        local actions =
-        {
-            function()
-                local random = love.math.random()
-
-                if random < 0.15 then
-                    if self.player:health() < self.player:heartCount() then
-                        return currentZone:spawnHeart()
-                    end
-                end
-
-                return false
-            end,
-
-            function()
-                local random = love.math.random()
-
-                if random < 0.05 then
-                    return currentZone:spawnShield()
-                end
-
-                return false
-            end,
-
-            function()
-                local random = love.math.random()
-
-                if random < 0.10 then
-                    return currentZone:spawnRocket()
-                end
-
-                return false
-            end
-        }
-
-        local index = love.math.random(#actions)
-        local zoneAction = actions[index]
-
-        if not zoneAction() then
-            currentZone:spawnCoin()
-        end
+        self:doZoneAction()
 
         self.coin.timer = 0
         self.coin.maxTime = love.math.random(3, 4)
@@ -137,11 +129,6 @@ function Game:draw()
 
     self.display:draw(self.player)
     self.score:draw()
-
-    if self.showDebug then
-        love.graphics.setColor(1, 1, 1, 1)
-        love.graphics.print(self.debugString, 0, 128)
-    end
 
     if self.paused or self.gameover then
         love.graphics.setColor(0, 0, 0, 0.35)
@@ -201,6 +188,17 @@ function Game:gamepadaxis(joy, axis, value)
     end
 end
 
+function Game:doZoneAction()
+    local zones = physics:getEntity("coinzone", true)
+    local currentZone = zones[love.math.random(#zones)]
+
+    local index = love.math.random(#self.actions)
+    local zoneAction = self.actions[index]
+
+    if not zoneAction(currentZone) then
+        currentZone:spawnCoin()
+    end
+end
 function Game:gravity()
     if physics:flipped() then
         return -1
@@ -209,7 +207,7 @@ function Game:gravity()
 end
 
 function Game:saveHiScore()
-    if highscore and self.score:getValue() > highScore then
+    if highscore and self.score:getValue() > highScore or not highScore then
         highScore = self.score:getValue()
     end
 

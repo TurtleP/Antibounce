@@ -18,6 +18,10 @@ function Entity:new(x, y, width, height)
     self.flags.passive = false
     self.flags.remove  = false
     self.flags.flipped = false
+
+    self.rect_position = {x, y}
+    self.rect_size = {width, height}
+    self.rect_bounds = {x, y, width, height}
 end
 
 function Entity:update(dt)
@@ -78,6 +82,12 @@ end
 function Entity:setPosition(x, y)
     self.x = x
     self.y = y
+
+    self.rect_position[1] = x
+    self.rect_position[2] = y
+
+    self.rect_bounds[1] = x
+    self.rect_bounds[2] = y
 end
 
 function Entity:gravity()
@@ -93,11 +103,11 @@ function Entity:setRemove(should)
 end
 
 function Entity:bounds()
-    return {self.x, self.y, self.width, self.height}
+    return self.rect_bounds
 end
 
 function Entity:position()
-    return {self.x, self.y}
+    return self.rect_position
 end
 
 function Entity:center()
@@ -107,7 +117,7 @@ function Entity:center()
 end
 
 function Entity:size()
-    return {self.width, self.height}
+    return self.rect_size
 end
 
 function Entity:static()
