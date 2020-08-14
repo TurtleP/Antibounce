@@ -18,8 +18,6 @@ function Entity:new(x, y, width, height)
     self.flags.passive = false
     self.flags.remove  = false
     self.flags.flipped = false
-
-    logger:debug("Creating: " .. tostring(self) .. ": " .. table.concat(self:bounds(), ", "))
 end
 
 function Entity:update(dt)

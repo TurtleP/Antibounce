@@ -22,7 +22,7 @@ function Tiled:init()
         local items = love.filesystem.getDirectoryItems("data/maps")
 
         for i = 1, #items do
-            if not items[i]:find(".tmx") then
+            if items[i]:find(".lua") then
                 local name = items[i]:gsub(".lua", "")
                 self.maps[name] = require("data.maps." .. name)
             end
@@ -55,6 +55,8 @@ function Tiled:loadMap(name)
             end
         end
     end
+
+    self.background = love.graphics.newImage("data/maps/" .. name .. ".png")
 
     return self.data
 end
@@ -128,9 +130,8 @@ function Tiled:update(dt)
 end
 
 function Tiled:draw()
-    for _, value in ipairs(self.squares) do
-        value:draw()
-    end
+    love.graphics.setColor(colors:get("LightestGreen"))
+    love.graphics.draw(self.background, 0, -8)
 
     for _, value in pairs(self.data) do
         value:draw()

@@ -4,6 +4,10 @@ local Rocket = Entity:extend()
 local Explosion = require("data.classes.explosion")
 
 Rocket.graphic = love.graphics.newImage("graphics/rocket.png")
+Rocket.quads = {}
+for i = 1, 3 do
+    Rocket.quads[i] = love.graphics.newQuad((i - 1) * 9, 0, 9, 15, Rocket.graphic)
+end
 
 function Rocket:new(x, y)
     Rocket.super.new(self, x, y, 5, 6)
@@ -16,11 +20,11 @@ function Rocket:new(x, y)
 
     self.moveSpeed = 240
 
-    self.particleColors =
+    self.colors =
     {
-        {1, 0, 0},
-        {1, 1, 1},
-        {0, 0, 0}
+        colors:get("LightGreen"),
+        colors:get("DarkGreen"),
+        colors:get("DarkestGreen")
     }
 end
 
@@ -62,14 +66,17 @@ function Rocket:update(dt)
 end
 
 function Rocket:draw()
-    love.graphics.draw(Rocket.graphic, self.x, self.y, self.angle, 1, 1, self.width, self.height)
+    for i = 1, #self.colors do
+        love.graphics.setColor(self.colors[i])
+        love.graphics.draw(Rocket.graphic, Rocket.quads[i], self.x, self.y, self.angle, 1, 1, self.width, self.height)
+    end
 end
 
 function Rocket:collect()
     audio:play("Rocket")
 
-    local colorID = love.math.random(#self.particleColors)
-    state:call("spawnParticles", self, self.particleColors[colorID])
+    local colorID = love.math.random(#self.colors)
+    state:call("spawnParticles", self, self.colors[colorID])
 
     tiled:addEntity(Explosion(self.x, self.y))
 

@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.4" tiledversion="1.4.1" orientation="orthogonal" renderorder="right-down" width="40" height="23" tilewidth="32" tileheight="32" infinite="0" nextlayerid="3" nextobjectid="31">
+<map version="1.4" tiledversion="1.4.1" orientation="orthogonal" renderorder="right-down" width="40" height="23" tilewidth="32" tileheight="32" infinite="0" nextlayerid="4" nextobjectid="31">
  <editorsettings>
   <export target="menu.lua" format="lua"/>
  </editorsettings>
  <tileset firstgid="1" name="tiles" tilewidth="32" tileheight="32" spacing="1" tilecount="1" columns="1">
-  <image source="../../graphics/wall.png" width="32" height="32"/>
+  <image source="../../graphics/wall.png" width="64" height="32"/>
  </tileset>
- <objectgroup id="2" name="Entities">
+ <tileset firstgid="2" name="wall" tilewidth="32" tileheight="32" tilecount="2" columns="2">
+  <image source="../../graphics/wall.png" width="64" height="32"/>
+ </tileset>
+ <objectgroup id="2" name="Entities" visible="0">
   <object id="2" name="tile" x="0" y="0" width="1280" height="32"/>
   <object id="3" name="tile" x="0" y="32" width="32" height="704"/>
   <object id="5" name="tile" x="1248" y="32" width="32" height="704"/>
@@ -41,9 +44,14 @@
    </properties>
   </object>
  </objectgroup>
- <layer id="1" name="Tiles" width="40" height="23">
+ <layer id="1" name="Tiles" width="40" height="23" visible="0">
   <data encoding="base64" compression="zstd">
    KLUv/WBgDXUBACgBAAAAAROg0FcDcIOlxQF1USLlpMiKhGXk2DeDIjIUMUMTGXoi80lpSiU2hVI=
+  </data>
+ </layer>
+ <layer id="3" name="Background" width="40" height="23">
+  <data encoding="base64" compression="zstd">
+   KLUv/WBgDVUDALgAAAMDAwMDAwMDAwMDAwMDAwMDAwMDAy+gIB8gg1cAcU8L5VxLgSinECmnECmjElFOJ1BOJ1BOJVJOJ1JOJ1JOJ1JOJ1JOJ1JOJ1JOJ1JOJ1JOJ1JOzWWcmk44NZM/PZk+XTN7mmZU+QE=
   </data>
  </layer>
 </map>

@@ -3,9 +3,8 @@ local Square = Object:extend()
 
 Square.COLORS =
 {
-    "#2e7d32AA",
-    "#60ad5eAA",
-    "#005005AA"
+    colors:get("LightGreen"),
+    colors:get("LightestGreen")
 }
 
 function Square:new(x, y)
@@ -28,7 +27,7 @@ function Square:update(dt)
 end
 
 function Square:draw()
-    love.graphics.setColor(utility.Hex2Color(self.color))
+    love.graphics.setColor(self.color)
     love.graphics.rectangle("fill", self.x, self.y, self.width, self.height)
 
     love.graphics.setColor(1, 1, 1, 1)

@@ -9,8 +9,12 @@ Spike.graphic = love.graphics.newImage("graphics/spike.png")
 
 Spike.quads = {}
 local directions = {"up", "down", "left", "right"}
-for i = 1, 4 do
-    Spike.quads[directions[i]] = love.graphics.newQuad((i - 1) * 16, 0, 16, 16, Spike.graphic)
+
+for y = 1, 2 do
+    Spike.quads[y] = {}
+    for i = 1, 4 do
+        Spike.quads[y][directions[i]] = love.graphics.newQuad((i - 1) * 16, (y - 1) * 16, 16, 16, Spike.graphic)
+    end
 end
 
 local CONST_SPAWN_LERP = 0.25
@@ -78,7 +82,11 @@ end
 function Spike:draw()
     love.graphics.setScissor(self.scissorOffset.x, self.scissorOffset.y, self.width, self.height)
 
-    love.graphics.draw(Spike.graphic, Spike.quads[self.direction], self.x, self.y)
+    love.graphics.setColor(colors:get("DarkGreen"))
+    love.graphics.draw(Spike.graphic, Spike.quads[1][self.direction], self.x, self.y)
+
+    love.graphics.setColor(colors:get("LightGreen"))
+    love.graphics.draw(Spike.graphic, Spike.quads[2][self.direction], self.x, self.y)
 
     love.graphics.setScissor()
 end

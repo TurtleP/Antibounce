@@ -7,6 +7,8 @@ local CONST_PLAYER_MAX_SPEED = 320
 
 local Ghost = require("data.classes.ghost")
 
+Player.graphic = love.graphics.newImage("graphics/player.png")
+
 function Player:new(x, y)
     Player.super.new(self, x, y, 32, 32)
 
@@ -70,13 +72,13 @@ function Player:draw()
         return
     end
 
-    local color = utility.Hex2Color("#2e7d32")
+    local color = colors:get("DarkGreen")
     if self.flags.shield then
-        color = utility.Hex2Color("#1976d2")
+        color = colors:get("DarkestGreen")
     end
     love.graphics.setColor(color)
 
-    love.graphics.circle("fill", self.x + CONST_PLAYER_RADIUS, self.y + CONST_PLAYER_RADIUS, CONST_PLAYER_RADIUS)
+    love.graphics.draw(Player.graphic, self.x, self.y)
 
     love.graphics.setColor(1, 1, 1)
 end
@@ -278,7 +280,17 @@ function Player:stop(hor)
     end
 end
 
+function Player:anyHeld()
+    return self.leftHeld or self.rightHeld or
+           self.upHeld or self.downHeld
+end
+
 function Player:setDashing(isDashing)
+    -- don't dash when not holding any buttons
+    if not self:anyHeld() then
+        return
+    end
+
     if not self.flags.dashing and isDashing then
         self:setVelocity(0, 0)
 

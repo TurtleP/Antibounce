@@ -3,6 +3,7 @@ local Menu = {}
 local Score = require("data.classes.score")
 
 local GAME_TITLE = "AntiBounce"
+local Vector = require("libraries.vector")
 
 function Menu:load(initFunc)
     physics:init(tiled:loadMap("menu"))
@@ -17,6 +18,9 @@ function Menu:load(initFunc)
     end
 
     self.highScoreDisplay = Score(19, 54, highScore)
+
+    self.title = love.graphics.newImage("graphics/title.png")
+    self.titlePos = Vector((love.graphics.getWidth() - self.title:getWidth()) / 2, love.graphics.getHeight() * 0.40)
 end
 
 function Menu:update(dt)
@@ -33,28 +37,21 @@ end
 function Menu:draw()
     tiled:draw()
 
-    love.graphics.setFont(titleFont)
+    love.graphics.setColor(colors:get("DarkGreen"))
+    love.graphics.draw(self.title, self.titlePos.x, self.titlePos.y + math.sin(love.timer.getTime() * 5) * 16)
 
-
-    local TITLE_POS_X = (love.graphics.getWidth() - titleFont:getWidth(GAME_TITLE)) / 2
-    local TITLE_POS_Y = (love.graphics.getHeight() * 0.40) + math.sin(love.timer.getTime() * 5) * 16
-
-    love.graphics.setColor(utility.Hex2Color("#fafafa"))
-    love.graphics.print(GAME_TITLE, TITLE_POS_X - 1, TITLE_POS_Y - 1)
-
-    love.graphics.setColor(utility.Hex2Color("#00701a"))
-    love.graphics.print(GAME_TITLE, TITLE_POS_X, TITLE_POS_Y)
-
-    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.setColor(colors:get("DarkGreen"))
     love.graphics.draw(self.arrow, self.beams[1]:center().x - self.arrow:getWidth() / 2, self.beams[1].y - 48 + math.sin(love.timer.getTime() * 8) * 4)
 
     self.highScoreDisplay:draw()
 
-    love.graphics.setColor(utility.Hex2Color("#2e7d32"))
+    love.graphics.setColor(colors:get("LightGreen"))
     love.graphics.print("HI-SCORE", 11, 23)
 
-    love.graphics.setColor(utility.Hex2Color("#003300"))
+    love.graphics.setColor(colors:get("DarkestGreen"))
     love.graphics.print("HI-SCORE", 12, 24)
+
+    love.graphics.setColor(1, 1, 1, 1)
 end
 
 function Menu:gamepadaxis(joy, axis, value)

@@ -2,12 +2,23 @@ local Entity = require("data.classes.entity")
 local Heart = Entity:extend()
 
 Heart.graphic = love.graphics.newImage("graphics/health.png")
+Heart.quads = {}
+for i = 1, 3 do
+    Heart.quads[i] = love.graphics.newQuad((i - 1) * 16, 0, 16, 15, Heart.graphic)
+end
 
 function Heart:new(x, y)
     Heart.super.new(self, x, y, 16, 16)
 
     self.flags.float = true
     self.timer = 0
+
+    self.colors =
+    {
+        colors:get("DarkGreen"),
+        colors:get("LightGreen"),
+        colors:get("LightestGreen")
+    }
 end
 
 function Heart:update(dt)
@@ -27,7 +38,10 @@ function Heart:draw()
         addx, addy = 0, 0
     end
 
-    love.graphics.draw(Heart.graphic, self.x + addx, self.y + addy)
+    for i = 1, #self.colors do
+        love.graphics.setColor(self.colors[i])
+        love.graphics.draw(Heart.graphic, self.quads[i], self.x + addx, self.y + addy)
+    end
 end
 
 function Heart:collect()

@@ -1,7 +1,7 @@
 local Entity = require("data.classes.entity")
 local Ghost  = Entity:extend()
 
-local CONST_PLAYER_RADIUS = 16
+Ghost.graphic = love.graphics.newImage("graphics/player.png")
 
 function Ghost:new(x, y, hasShield)
     Ghost.super.new(self, x, y, 32, 32)
@@ -28,7 +28,7 @@ function Ghost:draw()
     color[4] = 1 - (self.timer / self.maxTime)
     love.graphics.setColor(color)
 
-    love.graphics.circle("fill", self.x + CONST_PLAYER_RADIUS, self.y + CONST_PLAYER_RADIUS, CONST_PLAYER_RADIUS)
+    love.graphics.draw(Ghost.graphic, self.x, self.y)
 
     love.graphics.setColor(1, 1, 1)
 end

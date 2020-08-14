@@ -4,34 +4,33 @@ local Coin   = Entity:extend()
 Coin.graphic = love.graphics.newImage("graphics/coin.png")
 
 Coin.quads = {}
-for i = 1, 2 do
-    Coin.quads[i] = love.graphics.newQuad((i - 1) * 16, 0, 16, 16, Coin.graphic)
+for y = 1, 2 do
+    Coin.quads[y] = {}
+    for i = 1, 2 do
+        Coin.quads[y][i] = love.graphics.newQuad((i - 1) * 16, (y - 1) * 16, 16, 16, Coin.graphic)
+    end
 end
 
 function Coin:new(x, y, isBad)
     Coin.super.new(self, x, y, 16, 16)
 
-    self.flags.bad = isBad
-
-    local colors =
-    {
-        utility.Hex2Color("#fdd835"),
-        utility.Hex2Color("#fbc02d")
-    }
-
+    self.quadi = 1
     if isBad then
-        colors =
-        {
-            utility.Hex2Color("#f4511e"),
-            utility.Hex2Color("#e64a19")
-        }
+        self.quadi = 2
     end
+
+    self.flags.bad = isBad
 
     self.colors = colors
     self.particleColor = colors[1]
 
     self.timer = 0
     self.maxTime = 10
+
+    self.colors = {colors:get("LightGreen"), colors:get("DarkGreen")}
+    if isBad then
+        self.colors = {colors:get("DarkGreen"), colors:get("LightGreen")}
+    end
 end
 
 function Coin:update(dt)
@@ -42,14 +41,11 @@ function Coin:update(dt)
 end
 
 function Coin:draw()
-    self.colors[1][4] = 1 - math.min(self.timer / self.maxTime, 1)
-    self.colors[2][4] = 1 - math.min(self.timer / self.maxTime, 1)
-
     love.graphics.setColor(self.colors[1])
-    love.graphics.draw(Coin.graphic, Coin.quads[1], self.x, self.y)
+    love.graphics.draw(Coin.graphic, Coin.quads[self.quadi][1], self.x, self.y)
 
     love.graphics.setColor(self.colors[2])
-    love.graphics.draw(Coin.graphic, Coin.quads[2], self.x, self.y)
+    love.graphics.draw(Coin.graphic, Coin.quads[self.quadi][2], self.x, self.y)
 
     love.graphics.setColor(1, 1, 1, 1)
 end
@@ -64,7 +60,7 @@ function Coin:collect()
     end
 
     audio:play(sound)
-    state:call("spawnParticles", self, self.particleColor)
+    state:call("spawnParticles", self, self.colors[1])
 
     state:call("addScore", amount)
     self.flags.remove = true

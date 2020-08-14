@@ -4,7 +4,7 @@ local HUD = Object:extend()
 HUD.graphic = love.graphics.newImage("graphics/heart.png")
 HUD.quads = {}
 for i = 1, 4 do
-    HUD.quads[i] = love.graphics.newQuad((i - 1) * 31, 0, 31, 32, HUD.graphic)
+    HUD.quads[i] = love.graphics.newQuad((i - 1) * 32, 0, 32, 30, HUD.graphic)
 end
 
 function HUD:new(x, y)

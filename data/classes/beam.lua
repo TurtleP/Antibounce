@@ -40,14 +40,14 @@ end
 
 function Beam:draw()
     love.graphics.setFont(mainFont)
-    love.graphics.setColor(utility.Hex2Color("#00701a"))
+    love.graphics.setColor(colors:get("DarkGreen"))
     love.graphics.print(self.text:upper(), self.x + (self.width - mainFont:getWidth(self.text:upper())) / 2, self.y - 96)
 
     if not self.active then
         return
     end
 
-    love.graphics.setColor(1, 1, 1, 0.5)
+    love.graphics.setColor(colors:get("LightGreen"))
     love.graphics.rectangle("fill", self.dx, 0, self.maxWidth, self.y)
 
     love.graphics.setColor(1, 1, 1, 1)

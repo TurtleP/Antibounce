@@ -3,26 +3,7 @@ local Game = {}
 local HUD   = require("data.classes.hud")
 local Score = require("data.classes.score")
 
-local Coin = require("data.classes.coin")
-local Shield = require("data.classes.shield")
-local Rocket = require("data.classes.rocket")
-
 local Particle = require("data.classes.particle")
-
-Game.DEBUG =
-{
-    "OS: " .. love._os,
-    "",
-    "dpup: toggle this DEBUG info",
-    "",
-    "a: Toggle DEBUG Render",
-    "b: Kill PLAYER",
-    "y: Spawn COIN at PLAYER position",
-    "x: Spawn ROCKET",
-    "dpleft: Give PLAYER a SHIELD",
-    "dpdown: Flip GRAVITY"
-}
-
 
 Game.PausedText = "GAME PAUSED"
 Game.OverText = "GAME OVER"
@@ -39,9 +20,6 @@ function Game:load()
         timer = 0,
         maxTime = love.math.random(3, 4)
     }
-
-    self.debugString = table.concat(Game.DEBUG, "\n")
-    self.showDebug = false
 
     self.difficultyModMin = 1
     self.difficultyMod = self.difficultyModMin
@@ -189,33 +167,12 @@ function Game:gamepadpressed(joy, button)
     elseif button == "leftshoulder" or button == "rightshoulder" then
         self.player:setDashing(true)
     end
-
-    -- [[ DEBUG STUFF ]] --
-
-    if button == "b" then
-        self.player:die()
-    elseif button == "y" then
-        local x, y = unpack(self.player:position())
-        tiled:addEntity(Coin(x, y, love.math.random() <= 0.5))
-    elseif button == "dpup" then
-        self.showDebug = not self.showDebug
-    elseif button == "dpleft" then
-        local x, y = unpack(self.player:position())
-        tiled:addEntity(Shield(x, y))
-    elseif button == "dpdown" then
-        physics:flipGravity()
-    elseif button == "x" then
-        local x, y = love.math.random(love.graphics.getWidth()), love.math.random(love.graphics.getHeight())
-        tiled:addEntity(Rocket(x + 32, y + 32))
-    end
 end
 
 function Game:gamepadaxis(joy, axis, value)
     if self.paused then
         return
     end
-
-    logger:debug("Axis: %s / Value %s", axis, tostring(value))
 
     value = tonumber(value)
 
@@ -255,7 +212,6 @@ function Game:saveHiScore()
     end
 
     love.filesystem.write("highscore", msgpack.pack(highScore))
-    logger:debug("saving hi-score: " .. highScore)
 end
 
 function Game:setGameover()
