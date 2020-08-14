@@ -1,11 +1,10 @@
 local Entity = require("data.classes.entity")
 local Shield = Entity:extend()
 
+Shield.graphic = love.graphics.newImage("graphics/shield.png")
+
 function Shield:new(x, y)
     Shield.super.new(self, x, y, 8, 8)
-
-    self.blue = utility.Hex2Color("#1976d2")
-    self.lightBlue = utility.Hex2Color("#1e88e5")
 
     self.colorTimer = 0
 
@@ -26,10 +25,8 @@ function Shield:update(dt)
 end
 
 function Shield:draw()
-    local r, g, b = unpack(utility.ColorFade(self.colorTimer, 3, self.currentColor, self.toColor))
-    love.graphics.setColor(r, g, b)
-
-    love.graphics.circle("fill", self.x, self.y, self.width)
+    love.graphics.setColor(colors:get("LightGreen"))
+    love.graphics.draw(Shield.graphic, self.x, self.y, self.width)
 
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.circle("fill", self.x + 3, self.y - 2, 1)

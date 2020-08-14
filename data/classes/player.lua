@@ -174,7 +174,7 @@ end
 function Player:die()
     self.flags.remove = true
 
-    state:call("spawnParticles", self, utility.Hex2Color("#2e7d32"))
+    state:call("spawnParticles", self, colors:get("DarkGreen"))
     state:call("shakeScreen", 10)
 
     state:call("setGameover")

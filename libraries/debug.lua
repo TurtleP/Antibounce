@@ -9,7 +9,9 @@ end
 
 function DebugDraw:init()
     self.zoom = 1
+
     self.active = false
+    self.fpsOnly = false
 
     return self
 end
@@ -21,9 +23,11 @@ function DebugDraw:draw()
 
     love.graphics.setColor(1, 1, 1, 1)
 
-    for _, entity in ipairs(physics:getEntities()) do
-        local bounds = entity:bounds()
-        wireframe(self.zoom, 1, unpack(bounds))
+    if not self.fpsOnly then
+        for _, entity in ipairs(physics:getEntities()) do
+            local bounds = entity:bounds()
+            wireframe(self.zoom, 1, unpack(bounds))
+        end
     end
 
     love.graphics.setFont(FONT)
@@ -38,7 +42,8 @@ function DebugDraw:zoom(amount)
     end
 end
 
-function DebugDraw:toggle()
+function DebugDraw:toggle(mode)
+    self.fpsOnly = (mode == "fps")
     self.active = not self.active
 end
 

@@ -23,7 +23,7 @@ end
 
 function Heart:update(dt)
     self.timer = self.timer + 4 * dt
-    if self.timer > 24 then
+    if self.timer > 32 then
         self.flags.remove = true
     end
 end

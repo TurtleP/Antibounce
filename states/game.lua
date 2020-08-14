@@ -5,14 +5,11 @@ local Score = require("data.classes.score")
 
 local Particle = require("data.classes.particle")
 
-Game.PausedText = "GAME PAUSED"
-Game.OverText = "GAME OVER"
-
 function Game:load()
     physics:init(tiled:loadMap("game"))
     self.player = physics:getEntity("player")
 
-    self.display = HUD(12, 16)
+    self.display = HUD(12, 24)
     self.score   = Score(10, 64)
 
     self.coin =
@@ -35,6 +32,12 @@ function Game:load()
 
     self.gravityTimer = 0
     self.gravityMaxTime = love.math.random(10, 16)
+
+    self.overlays =
+    {
+        gameover = love.graphics.newImage("graphics/gameover.png"),
+        paused = love.graphics.newImage("graphics/paused.png")
+    }
 end
 
 function Game:update(dt)
@@ -141,17 +144,16 @@ function Game:draw()
     end
 
     if self.paused or self.gameover then
-        love.graphics.setColor(utility.Hex2Color("#212121AA"))
+        love.graphics.setColor(0, 0, 0, 0.35)
         love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
 
-        love.graphics.setFont(titleFont)
-        love.graphics.setColor(utility.Hex2Color("#00701a"))
+        love.graphics.setColor(colors:get("DarkGreen"))
 
-        local text = Game.PausedText
+        local text = self.overlays.paused
         if self.gameover then
-            text = Game.OverText
+            text = self.overlays.gameover
         end
-        love.graphics.print(text, (love.graphics.getWidth() - titleFont:getWidth(text)) / 2, (love.graphics.getHeight() * 0.4) + math.sin(love.timer.getTime() * 4) * 6)
+        love.graphics.draw(text, (love.graphics.getWidth() - text:getWidth()) / 2, (love.graphics.getHeight() * 0.4) + math.sin(love.timer.getTime() * 4) * 6)
     end
 end
 

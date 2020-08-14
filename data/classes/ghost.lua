@@ -10,6 +10,12 @@ function Ghost:new(x, y, hasShield)
 
     self.timer = 0
     self.maxTime = 0.25
+
+    self.colors =
+    {
+        colors:hex2Color(colors:get("#DarkGreen")),
+        colors:hex2Color(colors:get("#DarkestGreen"))
+    }
 end
 
 function Ghost:update(dt)
@@ -20,9 +26,9 @@ function Ghost:update(dt)
 end
 
 function Ghost:draw()
-    local color = utility.Hex2Color("#2e7d32FF")
+    local color = self.colors[1]
     if self.flags.shield then
-        color = utility.Hex2Color("#1e88e5FF")
+        color = self.colors[2]
     end
 
     color[4] = 1 - (self.timer / self.maxTime)
@@ -30,7 +36,7 @@ function Ghost:draw()
 
     love.graphics.draw(Ghost.graphic, self.x, self.y)
 
-    love.graphics.setColor(1, 1, 1)
+    love.graphics.setColor(1, 1, 1, 1)
 end
 
 function Ghost:passive()

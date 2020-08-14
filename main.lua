@@ -48,7 +48,7 @@ end
 
 function love.gamepadpressed(joy, button)
     if button == "a" then
-        debug:toggle()
+        debug:toggle("fps")
     elseif button == "back" then
         love.event.quit()
     elseif button == "b" then

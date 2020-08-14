@@ -10,27 +10,44 @@ end
 function HUD:new(x, y)
     self.x = x
     self.y = y
+
+    self.colors =
+    {
+        colors:get("DarkGreen"),
+        colors:get("LightGreen"),
+        colors:get("LightestGreen")
+    }
 end
 
 function HUD:draw(player)
     love.graphics.setColor(1, 1, 1)
 
     for i = 1, player:heartCount() do
-        local index = nil
+        local shouldFill = false
 
         if i <= player:health() then
-            if not player:hasShield() then
-                index = 2
-            else
-                index = 4
-            end
-        else
-            index = 3
+            shouldFill = true
         end
 
-        love.graphics.draw(HUD.graphic, HUD.quads[index], self.x + (i - 1) * 36, self.y)
-        love.graphics.draw(HUD.graphic, HUD.quads[1], self.x + (i - 1) * 36, self.y)
+        self:drawHeart(shouldFill, self.x + (i - 1) * 36, self.y)
     end
+end
+
+function HUD:drawHeart(fill, x, y)
+    if not fill then
+        love.graphics.setColor(self.colors[1])
+        love.graphics.draw(HUD.graphic, HUD.quads[4], x, y)
+        return
+    end
+
+    love.graphics.setColor(self.colors[1])
+    love.graphics.draw(HUD.graphic, HUD.quads[1], x, y)
+
+    love.graphics.setColor(self.colors[2])
+    love.graphics.draw(HUD.graphic, HUD.quads[2], x, y)
+
+    love.graphics.setColor(self.colors[3])
+    love.graphics.draw(HUD.graphic, HUD.quads[3], x, y)
 end
 
 return HUD

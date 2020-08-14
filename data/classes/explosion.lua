@@ -14,6 +14,16 @@ function Explosion:new(x, y)
     self.quadi = 1
 
     state:call("shakeScreen", 4)
+
+    self.colors =
+    {
+        colors:get("DarkestGreen"),
+        colors:get("DarkGreen"),
+        colors:get("DarkGreen"),
+        colors:get("LightGreen").
+        colors:get("LightGreen"),
+        colors:get("LightestGreen")
+    }
 end
 
 function Explosion:update(dt)
@@ -26,6 +36,7 @@ function Explosion:update(dt)
 end
 
 function Explosion:draw()
+    love.graphics.setColor(self.colors[self.quadi])
     love.graphics.draw(Explosion.graphic, Explosion.quads[self.quadi], self.x, self.y)
 end
 

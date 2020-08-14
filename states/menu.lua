@@ -17,8 +17,6 @@ function Menu:load(initFunc)
         initFunc()
     end
 
-    self.highScoreDisplay = Score(19, 54, highScore)
-
     self.title = love.graphics.newImage("graphics/title.png")
     self.titlePos = Vector((love.graphics.getWidth() - self.title:getWidth()) / 2, love.graphics.getHeight() * 0.40)
 end
@@ -40,16 +38,14 @@ function Menu:draw()
     love.graphics.setColor(colors:get("DarkGreen"))
     love.graphics.draw(self.title, self.titlePos.x, self.titlePos.y + math.sin(love.timer.getTime() * 5) * 16)
 
-    love.graphics.setColor(colors:get("DarkGreen"))
     love.graphics.draw(self.arrow, self.beams[1]:center().x - self.arrow:getWidth() / 2, self.beams[1].y - 48 + math.sin(love.timer.getTime() * 8) * 4)
 
-    self.highScoreDisplay:draw()
+    love.graphics.setFont(mainFont)
+    love.graphics.setColor(colors:get("DarkGreen"))
 
-    love.graphics.setColor(colors:get("LightGreen"))
-    love.graphics.print("HI-SCORE", 11, 23)
+    love.graphics.print("HI-SCORE", (love.graphics.getWidth() - mainFont:getWidth("HI-SCORE")) / 2, 28)
 
-    love.graphics.setColor(colors:get("DarkestGreen"))
-    love.graphics.print("HI-SCORE", 12, 24)
+    love.graphics.print(highScore, (love.graphics.getWidth() - mainFont:getWidth(highScore)) / 2, 64)
 
     love.graphics.setColor(1, 1, 1, 1)
 end
