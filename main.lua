@@ -35,27 +35,19 @@ function love.load()
 end
 
 function love.update(dt)
-    -- dt = math.min(dt, 1 / 60)
-
     state:update(dt)
 end
 
 function love.draw()
     state:draw()
-
-    debug:draw()
 end
 
 function love.gamepadpressed(joy, button)
-    if button == "a" then
-        debug:toggle("fps")
-    elseif button == "back" then
-        love.event.quit()
-    elseif button == "b" then
-        colors:toggleMode()
-    end
-
     state:gamepadpressed(joy, button)
+end
+
+function love.gamepadreleased(joy, button)
+    state:gamepadreleased(joy, button)
 end
 
 function love.gamepadaxis(joy, axis, value)

@@ -19,9 +19,27 @@ function Menu:load(initFunc)
 
     self.title = love.graphics.newImage("graphics/title.png")
     self.titlePos = Vector((love.graphics.getWidth() - self.title:getWidth()) / 2, love.graphics.getHeight() * 0.40)
+
+    self.clearTimer = 0
+    self.clearingFlag = false
+    self.maxClear = 3
+
+    self.shakeIntensity = 0
+end
+
+function Menu:clearHighscore()
+    highScore = nil
+    audio:play("Gravity")
+    love.filesystem.remove("highscore")
+    self.clearTimer = 0
+    self.shakeIntensity = 0
 end
 
 function Menu:update(dt)
+    if self.shakeIntensity > 0 and self.clearTimer == 0 then
+        self.shakeIntensity = self.shakeIntensity - 5 * dt
+    end
+
     tiled:update(dt)
 
     for _, beam in pairs(self.beams) do
@@ -30,9 +48,26 @@ function Menu:update(dt)
         end
         beam:update(dt)
     end
+
+    if self.clearingFlag then
+        self.clearTimer = self.clearTimer + dt
+
+        if self.clearTimer > self.maxClear then
+            self:clearHighscore()
+        else
+            if math.floor(self.clearTimer % 3) == 0 then
+                self.shakeIntensity = love.math.random(2, 4)
+            end
+        end
+    end
 end
 
 function Menu:draw()
+    if self.shakeIntensity > 0 and self.clearingFlag then
+        local x, y = (love.math.random() * 2 - 1) * self.shakeIntensity,  (love.math.random() * 2 - 1) * self.shakeIntensity
+        love.graphics.translate(x, y)
+    end
+
     tiled:draw()
 
     love.graphics.setColor(colors:get("DarkGreen"))
@@ -48,7 +83,25 @@ function Menu:draw()
         love.graphics.print(highScore, (love.graphics.getWidth() - mainFont:getWidth(highScore)) / 2, 64)
     end
 
+    if self.clearingFlag then
+        love.graphics.setColor(0, 0, 0, math.min(self.clearTimer / self.maxClear, 1))
+        love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
+    end
+
     love.graphics.setColor(1, 1, 1, 1)
+end
+
+function Menu:gamepadpressed(joy, button)
+    if button == "start" and highScore then
+        self.clearingFlag = true
+    end
+end
+
+function Menu:gamepadreleased(joy, button)
+    if button == "start" then
+        self.clearingFlag = false
+        self.clearTimer = 0
+    end
 end
 
 function Menu:gamepadaxis(joy, axis, value)
